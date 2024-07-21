@@ -19,38 +19,39 @@ class _NotesViewState extends State<NotesView> {
   final Map<int, int> _durationsMs = {};
 
 
+  void onNoteClick(int index) {
+    setState(() {
+      _scales[index] = _scalePressed;
+      _durationsMs[index] = _durationDefault;
+    });
+
+    Future.delayed(Duration(milliseconds: _durationDefault), () {
+      setState(() {
+        _scales[index] = _scaleDefault;
+      });
+    });
+  }
+
+  void holdInteraction(int index) {
+    setState(() {
+    _scales[index] = _scalePressed;
+    _durationsMs[index] = _durationDefault;
+    });
+  }
+
+  void holdEnded(int index) {
+    setState(() {
+    _scales[index] = _scaleDefault;
+    _durationsMs[index] = _durationDefault * 2;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final db = context.watch<NotesDatabase>();
 
     List<Note> currentNotes = db.currentNotes;
 
-    void onNoteClick(int index) {
-      setState(() {
-        _scales[index] = _scalePressed;
-        _durationsMs[index] = _durationDefault;
-      });
-
-      Future.delayed(Duration(milliseconds: _durationDefault), () {
-        setState(() {
-          _scales[index] = _scaleDefault;
-        });
-      });
-    }
-
-    void holdInteraction(int index) {
-      setState(() {
-      _scales[index] = _scalePressed;
-      _durationsMs[index] = _durationDefault;
-      });
-    }
-
-    void holdEnded(int index) {
-      setState(() {
-      _scales[index] = _scaleDefault;
-      _durationsMs[index] = _durationDefault * 2;
-      });
-    }
     return Padding(
       padding: const EdgeInsets.all(8),
       child: GridView.builder(
