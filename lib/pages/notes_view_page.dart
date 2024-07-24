@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/data/note.dart';
 import 'package:notes_app/data/notes_database.dart';
+import 'package:notes_app/pages/note_details_page.dart';
 import 'package:provider/provider.dart';
 
-class NotesView extends StatefulWidget {
-  const NotesView({super.key});
+class NotesViewPage extends StatefulWidget {
+  final Function(int) deleteNote;
+  
+  const NotesViewPage({
+    super.key,
+    required this.deleteNote
+  });
 
   @override
-  State<NotesView> createState() => _NotesViewState();
+  State<NotesViewPage> createState() => _NotesViewPageState();
 }
 
-class _NotesViewState extends State<NotesView> {
+class _NotesViewPageState extends State<NotesViewPage> {
   final double _scaleDefault = 1.0;
   final double _scalePressed = 0.95;
   final int _durationDefault = 120;
@@ -18,19 +24,6 @@ class _NotesViewState extends State<NotesView> {
   final Map<int, double> _scales = {};
   final Map<int, int> _durationsMs = {};
 
-
-  void onNoteClick(int index) {
-    setState(() {
-      _scales[index] = _scalePressed;
-      _durationsMs[index] = _durationDefault;
-    });
-
-    Future.delayed(Duration(milliseconds: _durationDefault), () {
-      setState(() {
-        _scales[index] = _scaleDefault;
-      });
-    });
-  }
 
   void holdInteraction(int index) {
     setState(() {
@@ -43,6 +36,29 @@ class _NotesViewState extends State<NotesView> {
     setState(() {
     _scales[index] = _scaleDefault;
     _durationsMs[index] = _durationDefault * 2;
+    });
+  }
+
+  void onNoteClick( BuildContext context, int index, Note note) {
+    setState(() {
+      _scales[index] = _scalePressed;
+      _durationsMs[index] = _durationDefault;
+    });
+
+    Future.delayed(Duration(milliseconds: _durationDefault), () {
+      setState(() {
+        _scales[index] = _scaleDefault;
+      });
+
+      // Redirect to the details page
+      Navigator.push<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (context) => NoteDetailsPage(
+            note: note
+          )
+        )
+      );
     });
   }
 
@@ -61,12 +77,12 @@ class _NotesViewState extends State<NotesView> {
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          mainAxisExtent: 140
+          mainAxisExtent: 120
         ),
-        itemBuilder: (context, index) {
+        itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
             onTap: () {
-              onNoteClick(index);
+              onNoteClick(context, index, currentNotes[index]);
             },
             onTapDown: (TapDownDetails details) {
               holdInteraction(index);
@@ -119,7 +135,7 @@ class _NotesViewState extends State<NotesView> {
                             color: Colors.white70,
                           ),
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 5,
+                          maxLines: 4,
                           softWrap: true
                         ),
                       ),
