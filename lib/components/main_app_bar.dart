@@ -5,10 +5,10 @@ import 'package:notes_app/pages/settings_page.dart';
 class MainAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String? title;
   final bool showBackButton;
-  bool isInEditState;
+  final bool isInEditState;
   final VoidCallback? onEditStateFinished;
 
-  MainAppBar({
+  const MainAppBar({
     super.key,
     this.title,
     this.showBackButton = false,
@@ -25,6 +25,15 @@ class MainAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _MainAppBarState extends State<MainAppBar> {
+  late bool isInEditState;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    isInEditState = widget.isInEditState;
+  }
 
   void openSettings() {
     Navigator.push<void>(
@@ -40,7 +49,7 @@ class _MainAppBarState extends State<MainAppBar> {
 
     void editStateFinished() {
       setState(() {
-        widget.isInEditState = false;
+        isInEditState = false;
       });
 
       // Function editStateFinished() is only called when the app bar is reactive
