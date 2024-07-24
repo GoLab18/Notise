@@ -93,7 +93,7 @@ class _NotesPageState extends State<NotesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 44, 4, 67),
-      appBar: MainAppBar(
+      appBar: const MainAppBar(
         title: "Notes"
       ),
       floatingActionButton: CustomFloatingActionButton(onPressed: createNote),

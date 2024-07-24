@@ -5,7 +5,7 @@ class ButtonTemplate extends StatefulWidget {
   final VoidCallback onPressed;
 
 
-  ButtonTemplate({
+  const ButtonTemplate({
     super.key,
     required this.text,
     required this.onPressed
