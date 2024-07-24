@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/components/add_note_window.dart';
 import 'package:notes_app/components/custom_floating_action_button.dart';
-import 'package:notes_app/components/notes_view.dart';
+import 'package:notes_app/components/main_app_bar.dart';
+import 'package:notes_app/pages/notes_view_page.dart';
 import 'package:notes_app/data/notes_database.dart';
+import 'package:notes_app/pages/folders_page.dart';
 import 'package:provider/provider.dart';
 
 class NotesPage extends StatefulWidget {
@@ -13,14 +15,46 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController textController = TextEditingController();
+  late TextEditingController titleController;
+  late TextEditingController textController;
+
+  late int _currentIndex;
   
+  late List pages;
+
+  late bool isInEditState;
+
+
   @override
   void initState() {
     super.initState();
     
+    titleController = TextEditingController();
+    textController = TextEditingController();
+    _currentIndex = 0;
+    isInEditState = false;
+    pages = [
+      NotesViewPage(
+        deleteNote: deleteNote
+      ),
+      const FoldersPage()
+    ];
+
     readNotes();
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    textController.dispose();
+
+    super.dispose();
+  }
+  
+  void bottomBarNavigation(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
   }
 
   void createNote() {
@@ -47,26 +81,48 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  void readNotes() {
-    context.read<NotesDatabase>().fetchNotes();
+  void deleteNote(int id) {
+    context.read<NotesDatabase>().deleteNote(id);
   }
 
-  void updateNote() {
-    
+  void readNotes() {
+    context.read<NotesDatabase>().fetchNotes();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 44, 4, 67),
-      appBar: AppBar(
-        title: const Text("Notes"),
-        backgroundColor: Colors.blue.shade900,
-        foregroundColor: Colors.white,
-        centerTitle: true
+      appBar: MainAppBar(
+        title: "Notes"
       ),
       floatingActionButton: CustomFloatingActionButton(onPressed: createNote),
-      body: const NotesView()
+      body: pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: bottomBarNavigation,
+        backgroundColor: Colors.blue.shade900,
+        unselectedItemColor: Colors.white,
+        selectedItemColor: const Color.fromARGB(255, 44, 4, 67),
+        items: const [
+
+          //Home
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.home
+            ),
+            label: "Home"
+          ),
+
+          // Folders
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.folder
+            ),
+            label: "Folders"
+          )
+        ]
+        )
     );
   }
 }
