@@ -89,6 +89,7 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
 
           // Note title
           EditableText(
+            keyboardType: TextInputType.multiline,
             controller: _titleController,
             focusNode: _titleFocusNode,
             style: const TextStyle(
@@ -111,6 +112,7 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
           // Note text
           Expanded(
             child: EditableText(
+              keyboardType: TextInputType.multiline,
               controller: _textController,
               focusNode: _textFocusNode,
               style: const TextStyle(
