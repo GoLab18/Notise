@@ -22,7 +22,6 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
   late FocusNode _titleFocusNode;
   late FocusNode _textFocusNode;
   late bool isInEditState;
-  late bool currentEditState;
 
 
   @override
@@ -63,6 +62,10 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
     context.read<NotesDatabase>().updateNote(id, newTitle, newText);
   }
 
+  void deleteNote(int id) {
+    context.read<NotesDatabase>().deleteNote(id);
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -82,25 +85,32 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
       appBar: MainAppBar(
         showBackButton: true,
         isInEditState: isInEditState,
-        onEditStateFinished: onEditStateFinished
+        onEditStateFinished: onEditStateFinished,
+        popupMenuOptionsCallbacks: {
+          "Delete": () {
+            deleteNote(widget.note.id);
+          }
+        },
       ),
       body: Column(
         children: [
 
           // Note title
-          EditableText(
-            keyboardType: TextInputType.multiline,
-            controller: _titleController,
-            focusNode: _titleFocusNode,
-            style: const TextStyle(
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              overflow: TextOverflow.ellipsis
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: EditableText(
+              keyboardType: TextInputType.multiline,
+              controller: _titleController,
+              focusNode: _titleFocusNode,
+              style: const TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                overflow: TextOverflow.ellipsis
+              ),
+              cursorColor: Colors.blue,
+              backgroundCursorColor: Colors.grey,
             ),
-            cursorColor: Colors.blue,
-            backgroundCursorColor: Colors.grey,
-            maxLines: 1
           ),
 
           const Divider(
@@ -111,18 +121,21 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
 
           // Note text
           Expanded(
-            child: EditableText(
-              keyboardType: TextInputType.multiline,
-              controller: _textController,
-              focusNode: _textFocusNode,
-              style: const TextStyle(
-                fontSize: 18.0,
-                color: Colors.white70,
-                overflow: TextOverflow.ellipsis
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: EditableText(
+                keyboardType: TextInputType.multiline,
+                controller: _textController,
+                focusNode: _textFocusNode,
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  color: Colors.white70,
+                  overflow: TextOverflow.ellipsis
+                ),
+                cursorColor: Colors.blue,
+                backgroundCursorColor: Colors.grey,
+                maxLines: null
               ),
-              cursorColor: Colors.blue,
-              backgroundCursorColor: Colors.grey,
-              maxLines: null
             ),
           )
         ]
