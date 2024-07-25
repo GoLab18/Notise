@@ -7,13 +7,15 @@ class MainAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final bool isInEditState;
   final VoidCallback? onEditStateFinished;
+  final Map<String, VoidCallback>? popupMenuOptionsCallbacks;
 
   const MainAppBar({
     super.key,
     this.title,
     this.showBackButton = false,
     this.isInEditState = false,
-    this.onEditStateFinished
+    this.onEditStateFinished,
+    this.popupMenuOptionsCallbacks
   });
 
   // PreferredSizeWidget interface implementation
@@ -106,7 +108,10 @@ class _MainAppBarState extends State<MainAppBar> {
         : PopupMenuButton(
           onSelected: (String value) {
             // TODO custom normalized dialog window
-            if (value == "Delete") null;
+            if (value == "Delete") {
+              widget.popupMenuOptionsCallbacks![value]!.call();
+              Navigator.pop(context);
+            }
           },
           color: Colors.black,
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
