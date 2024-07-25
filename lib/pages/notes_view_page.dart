@@ -1,16 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:notes_app/components/custom_bottom_sheet.dart';
 import 'package:notes_app/data/note.dart';
 import 'package:notes_app/data/notes_database.dart';
 import 'package:notes_app/pages/note_details_page.dart';
 import 'package:provider/provider.dart';
 
 class NotesViewPage extends StatefulWidget {
-  final Function(int) deleteNote;
-  
-  const NotesViewPage({
-    super.key,
-    required this.deleteNote
-  });
+  const NotesViewPage({super.key});
 
   @override
   State<NotesViewPage> createState() => _NotesViewPageState();
@@ -24,15 +22,34 @@ class _NotesViewPageState extends State<NotesViewPage> {
   final Map<int, double> _scales = {};
   final Map<int, int> _durationsMs = {};
 
+  final _onHoldBottomSheetOpenTime = 1;
+  late Timer? _longPressTimer;
+
 
   void holdInteraction(int index) {
     setState(() {
     _scales[index] = _scalePressed;
     _durationsMs[index] = _durationDefault;
     });
+
+    // On note selection operations
+    // widget.onNoteSelected(index);
+
+    _longPressTimer = Timer(
+      Duration(
+        seconds: _onHoldBottomSheetOpenTime
+      ),
+      () => showBottomSheet(
+      context: context,
+      builder: (BuildContext context) => const CustomBottomSheet()
+      )
+    );
   }
 
   void holdEnded(int index) {
+    if (_longPressTimer != null && _longPressTimer!.isActive) {
+      _longPressTimer!.cancel();
+    }
     setState(() {
     _scales[index] = _scaleDefault;
     _durationsMs[index] = _durationDefault * 2;
@@ -84,13 +101,10 @@ class _NotesViewPageState extends State<NotesViewPage> {
             onTap: () {
               onNoteClick(context, index, currentNotes[index]);
             },
-            onTapDown: (TapDownDetails details) {
+            onLongPress: () {
               holdInteraction(index);
             },
-            onTapUp: (TapUpDetails details) {
-              holdEnded(index);
-            },
-            onTapCancel: () {
+            onLongPressUp: () {
               holdEnded(index);
             },
             child: AnimatedScale(
