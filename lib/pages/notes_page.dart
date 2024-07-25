@@ -18,11 +18,13 @@ class _NotesPageState extends State<NotesPage> {
   late TextEditingController titleController;
   late TextEditingController textController;
 
+  // For bottom nav bar
   late int _currentIndex;
-  
+
   late List pages;
 
-  late bool isInEditState;
+  late List<String> noteEdits;
+  late String currentEdit;
 
 
   @override
@@ -32,12 +34,14 @@ class _NotesPageState extends State<NotesPage> {
     titleController = TextEditingController();
     textController = TextEditingController();
     _currentIndex = 0;
-    isInEditState = false;
-    pages = [
-      NotesViewPage(
-        deleteNote: deleteNote
-      ),
-      const FoldersPage()
+
+    pages = const [
+      NotesViewPage(),
+      FoldersPage()
+    ];
+
+    noteEdits = [
+      "Delete"
     ];
 
     readNotes();
