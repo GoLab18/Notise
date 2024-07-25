@@ -8,4 +8,8 @@ class Note {
 
   late String title;
   late String text;
+
+  bool pinned = false;
+
+  String? folderName;
 }

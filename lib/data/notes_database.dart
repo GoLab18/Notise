@@ -55,4 +55,29 @@ class NotesDatabase extends ChangeNotifier {
 
     await fetchNotes();
   }
+
+  Future<void> addToFolder(int id, String folder) async {
+    final Note? existingNote = await isar.notes.get(id);
+
+    if (existingNote == null) return;
+
+    existingNote.folderName = folder;
+    
+    await isar.writeTxn(() => isar.notes.put(existingNote));
+
+    await fetchNotes();
+  }
+
+  Future<void> pinNote(int id) async {
+    final Note? existingNote = await isar.notes.get(id);
+
+    if(existingNote == null) return;
+
+    // Reverse the pin state
+    existingNote.pinned = !existingNote.pinned;
+
+    await isar.writeTxn(() => isar.notes.put(existingNote));
+
+    await fetchNotes();
+  }
 }
