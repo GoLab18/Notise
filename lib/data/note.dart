@@ -10,4 +10,6 @@ class Note {
   late String text;
 
   bool isPinned = false;
+
+  late DateTime initDate;
 }

@@ -8,4 +8,8 @@ class Folder {
 
   late String name;
   late List<int> notesIds = [];
+
+  bool isPinned = false;
+
+  late DateTime initDate;
 }

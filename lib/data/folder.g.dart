@@ -17,13 +17,23 @@ const FolderSchema = CollectionSchema(
   name: r'Folder',
   id: 6793289488482879694,
   properties: {
-    r'name': PropertySchema(
+    r'initDate': PropertySchema(
       id: 0,
+      name: r'initDate',
+      type: IsarType.dateTime,
+    ),
+    r'isPinned': PropertySchema(
+      id: 1,
+      name: r'isPinned',
+      type: IsarType.bool,
+    ),
+    r'name': PropertySchema(
+      id: 2,
       name: r'name',
       type: IsarType.string,
     ),
     r'notesIds': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'notesIds',
       type: IsarType.longList,
     )
@@ -59,8 +69,10 @@ void _folderSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.name);
-  writer.writeLongList(offsets[1], object.notesIds);
+  writer.writeDateTime(offsets[0], object.initDate);
+  writer.writeBool(offsets[1], object.isPinned);
+  writer.writeString(offsets[2], object.name);
+  writer.writeLongList(offsets[3], object.notesIds);
 }
 
 Folder _folderDeserialize(
@@ -71,8 +83,10 @@ Folder _folderDeserialize(
 ) {
   final object = Folder();
   object.id = id;
-  object.name = reader.readString(offsets[0]);
-  object.notesIds = reader.readLongList(offsets[1]) ?? [];
+  object.initDate = reader.readDateTime(offsets[0]);
+  object.isPinned = reader.readBool(offsets[1]);
+  object.name = reader.readString(offsets[2]);
+  object.notesIds = reader.readLongList(offsets[3]) ?? [];
   return object;
 }
 
@@ -84,8 +98,12 @@ P _folderDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 1:
+      return (reader.readBool(offset)) as P;
+    case 2:
+      return (reader.readString(offset)) as P;
+    case 3:
       return (reader.readLongList(offset) ?? []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -228,6 +246,69 @@ extension FolderQueryFilter on QueryBuilder<Folder, Folder, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> initDateEqualTo(
+      DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'initDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> initDateGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'initDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> initDateLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'initDate',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> initDateBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'initDate',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> isPinnedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isPinned',
+        value: value,
       ));
     });
   }
@@ -505,6 +586,30 @@ extension FolderQueryObject on QueryBuilder<Folder, Folder, QFilterCondition> {}
 extension FolderQueryLinks on QueryBuilder<Folder, Folder, QFilterCondition> {}
 
 extension FolderQuerySortBy on QueryBuilder<Folder, Folder, QSortBy> {
+  QueryBuilder<Folder, Folder, QAfterSortBy> sortByInitDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'initDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> sortByInitDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'initDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> sortByIsPinned() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPinned', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> sortByIsPinnedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPinned', Sort.desc);
+    });
+  }
+
   QueryBuilder<Folder, Folder, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -531,6 +636,30 @@ extension FolderQuerySortThenBy on QueryBuilder<Folder, Folder, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Folder, Folder, QAfterSortBy> thenByInitDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'initDate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> thenByInitDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'initDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> thenByIsPinned() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPinned', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> thenByIsPinnedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPinned', Sort.desc);
+    });
+  }
+
   QueryBuilder<Folder, Folder, QAfterSortBy> thenByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -545,6 +674,18 @@ extension FolderQuerySortThenBy on QueryBuilder<Folder, Folder, QSortThenBy> {
 }
 
 extension FolderQueryWhereDistinct on QueryBuilder<Folder, Folder, QDistinct> {
+  QueryBuilder<Folder, Folder, QDistinct> distinctByInitDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'initDate');
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QDistinct> distinctByIsPinned() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isPinned');
+    });
+  }
+
   QueryBuilder<Folder, Folder, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -563,6 +704,18 @@ extension FolderQueryProperty on QueryBuilder<Folder, Folder, QQueryProperty> {
   QueryBuilder<Folder, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Folder, DateTime, QQueryOperations> initDateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'initDate');
+    });
+  }
+
+  QueryBuilder<Folder, bool, QQueryOperations> isPinnedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isPinned');
     });
   }
 
