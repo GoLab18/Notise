@@ -36,9 +36,20 @@ class AddNoteWindow extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  
+                  // Action title
+                  const Text(
+                    "New note",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20
+                    ),
+                  ),
+        
                   // Title
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+                    padding: const EdgeInsets.only(top: 8, bottom: 6),
                     child: TextField(
                       controller: titleController,
                       style: const TextStyle(
@@ -48,6 +59,12 @@ class AddNoteWindow extends StatelessWidget {
                         fillColor: Color.fromARGB(255, 9, 61, 140),
                         filled: true,
                         enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          borderSide: BorderSide(
+                              color: Colors.white
+                            )
+                        ),
+                        border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8)),
                           borderSide: BorderSide(
                               color: Colors.white
