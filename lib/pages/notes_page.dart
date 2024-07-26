@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/components/add_folder_window.dart';
 import 'package:notes_app/components/add_note_window.dart';
 import 'package:notes_app/components/custom_floating_action_button.dart';
 import 'package:notes_app/components/main_app_bar.dart';
 import 'package:notes_app/pages/notes_view_page.dart';
 import 'package:notes_app/data/notes_database.dart';
-import 'package:notes_app/pages/folders_page.dart';
+import 'package:notes_app/pages/folders_view_page.dart';
 import 'package:provider/provider.dart';
 
 class NotesPage extends StatefulWidget {
@@ -17,6 +18,8 @@ class NotesPage extends StatefulWidget {
 class _NotesPageState extends State<NotesPage> {
   late TextEditingController titleController;
   late TextEditingController textController;
+
+  late TextEditingController folderNameController;
 
   // For bottom nav bar
   late int _currentIndex;
@@ -33,11 +36,14 @@ class _NotesPageState extends State<NotesPage> {
     
     titleController = TextEditingController();
     textController = TextEditingController();
+
+    folderNameController = TextEditingController();
+
     _currentIndex = 0;
 
     pages = const [
       NotesViewPage(),
-      FoldersPage()
+      FoldersViewPage()
     ];
 
     noteEdits = [
@@ -85,6 +91,27 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
+  void createFolder() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AddToFolderWindow(
+        folderNameController: folderNameController,
+        onAddPressed: () {
+            context.read<NotesDatabase>().addFolder(folderNameController.text);
+
+            folderNameController.clear();
+
+            Navigator.pop(context);
+        },
+        onCancelPressed: () {
+          folderNameController.clear();
+
+          Navigator.pop(context);
+        }
+      )
+    );
+  }
+
   void deleteNote(int id) {
     context.read<NotesDatabase>().deleteNote(id);
   }
@@ -100,7 +127,9 @@ class _NotesPageState extends State<NotesPage> {
       appBar: const MainAppBar(
         title: "Notes"
       ),
-      floatingActionButton: CustomFloatingActionButton(onPressed: createNote),
+      floatingActionButton: CustomFloatingActionButton(
+        onPressed: (_currentIndex == 0) ? createNote : createFolder
+      ),
       body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
