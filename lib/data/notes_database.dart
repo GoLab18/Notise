@@ -32,7 +32,7 @@ class NotesDatabase extends ChangeNotifier {
 
   // R
   Future<void> fetchNotes() async {
-    List<Note> fetchedNotes = await isar.notes.where().findAll();
+    List<Note> fetchedNotes = await isar.notes.where().sortByPinnedDesc().findAll();
 
     currentNotes.clear();
     currentNotes.addAll(fetchedNotes);
