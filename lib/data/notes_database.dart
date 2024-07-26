@@ -32,7 +32,7 @@ class NotesDatabase extends ChangeNotifier {
 
   // R
   Future<void> fetchNotes() async {
-    List<Note> fetchedNotes = await isar.notes.where().sortByIsPinnedDesc().findAll();
+    List<Note> fetchedNotes = await isar.notes.where().sortByIsPinnedDesc().thenByInitDateDesc().findAll();
 
     currentNotes.clear();
     currentNotes.addAll(fetchedNotes);
@@ -79,7 +79,7 @@ class NotesDatabase extends ChangeNotifier {
 
   // C
   Future<void> addFolder(String name) async {
-    final newFolder = Folder()..name = name..initDate = DateTime.now();
+    final Folder newFolder = Folder()..name = name..initDate = DateTime.now();
 
     await isar.writeTxn(() => isar.folders.put(newFolder));
 
@@ -88,7 +88,7 @@ class NotesDatabase extends ChangeNotifier {
 
   // R
   Future<void> fetchFolders() async {
-    List<Folder> fetchedFolders = await isar.folders.where().sortByIsPinnedDesc().findAll();
+    List<Folder> fetchedFolders = await isar.folders.where().sortByIsPinnedDesc().thenByInitDateDesc().findAll();
 
     currentFolders.clear();
     currentFolders.addAll(fetchedFolders);
