@@ -46,27 +46,32 @@ class _ButtonTemplateState extends State<ButtonTemplate> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onButtonPressed,
-      child: AnimatedScale(
-        scale: _currentScale,
-        duration: Duration(milliseconds: _durationMs),
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(10)
-          ),
+    return Expanded(
+      child: GestureDetector(
+        onTap: onButtonPressed,
+        child: AnimatedScale(
+          scale: _currentScale,
+          duration: Duration(milliseconds: _durationMs),
           child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              widget.text,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white
+            padding: const EdgeInsets.all(4),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(8)
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  widget.text,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white
+                  )
+                ),
               )
             ),
-          )
+          ),
         ),
       ),
     );
