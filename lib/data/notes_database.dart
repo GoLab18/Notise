@@ -32,7 +32,7 @@ class NotesDatabase extends ChangeNotifier {
 
   // R
   Future<void> fetchNotes() async {
-    List<Note> fetchedNotes = await isar.notes.where().sortByPinnedDesc().findAll();
+    List<Note> fetchedNotes = await isar.notes.where().sortByIsPinnedDesc().findAll();
 
     currentNotes.clear();
     currentNotes.addAll(fetchedNotes);
@@ -67,7 +67,7 @@ class NotesDatabase extends ChangeNotifier {
     if(existingNote == null) return;
 
     // Reverse the pin state
-    existingNote.pinned = !existingNote.pinned;
+    existingNote.isPinned = !existingNote.isPinned;
 
     await isar.writeTxn(() => isar.notes.put(existingNote));
 

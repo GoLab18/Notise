@@ -17,9 +17,9 @@ const NoteSchema = CollectionSchema(
   name: r'Note',
   id: 6284318083599466921,
   properties: {
-    r'pinned': PropertySchema(
+    r'isPinned': PropertySchema(
       id: 0,
-      name: r'pinned',
+      name: r'isPinned',
       type: IsarType.bool,
     ),
     r'text': PropertySchema(
@@ -64,7 +64,7 @@ void _noteSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeBool(offsets[0], object.pinned);
+  writer.writeBool(offsets[0], object.isPinned);
   writer.writeString(offsets[1], object.text);
   writer.writeString(offsets[2], object.title);
 }
@@ -77,7 +77,7 @@ Note _noteDeserialize(
 ) {
   final object = Note();
   object.id = id;
-  object.pinned = reader.readBool(offsets[0]);
+  object.isPinned = reader.readBool(offsets[0]);
   object.text = reader.readString(offsets[1]);
   object.title = reader.readString(offsets[2]);
   return object;
@@ -241,10 +241,10 @@ extension NoteQueryFilter on QueryBuilder<Note, Note, QFilterCondition> {
     });
   }
 
-  QueryBuilder<Note, Note, QAfterFilterCondition> pinnedEqualTo(bool value) {
+  QueryBuilder<Note, Note, QAfterFilterCondition> isPinnedEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'pinned',
+        property: r'isPinned',
         value: value,
       ));
     });
@@ -512,15 +512,15 @@ extension NoteQueryObject on QueryBuilder<Note, Note, QFilterCondition> {}
 extension NoteQueryLinks on QueryBuilder<Note, Note, QFilterCondition> {}
 
 extension NoteQuerySortBy on QueryBuilder<Note, Note, QSortBy> {
-  QueryBuilder<Note, Note, QAfterSortBy> sortByPinned() {
+  QueryBuilder<Note, Note, QAfterSortBy> sortByIsPinned() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pinned', Sort.asc);
+      return query.addSortBy(r'isPinned', Sort.asc);
     });
   }
 
-  QueryBuilder<Note, Note, QAfterSortBy> sortByPinnedDesc() {
+  QueryBuilder<Note, Note, QAfterSortBy> sortByIsPinnedDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pinned', Sort.desc);
+      return query.addSortBy(r'isPinned', Sort.desc);
     });
   }
 
@@ -562,15 +562,15 @@ extension NoteQuerySortThenBy on QueryBuilder<Note, Note, QSortThenBy> {
     });
   }
 
-  QueryBuilder<Note, Note, QAfterSortBy> thenByPinned() {
+  QueryBuilder<Note, Note, QAfterSortBy> thenByIsPinned() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pinned', Sort.asc);
+      return query.addSortBy(r'isPinned', Sort.asc);
     });
   }
 
-  QueryBuilder<Note, Note, QAfterSortBy> thenByPinnedDesc() {
+  QueryBuilder<Note, Note, QAfterSortBy> thenByIsPinnedDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'pinned', Sort.desc);
+      return query.addSortBy(r'isPinned', Sort.desc);
     });
   }
 
@@ -600,9 +600,9 @@ extension NoteQuerySortThenBy on QueryBuilder<Note, Note, QSortThenBy> {
 }
 
 extension NoteQueryWhereDistinct on QueryBuilder<Note, Note, QDistinct> {
-  QueryBuilder<Note, Note, QDistinct> distinctByPinned() {
+  QueryBuilder<Note, Note, QDistinct> distinctByIsPinned() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'pinned');
+      return query.addDistinctBy(r'isPinned');
     });
   }
 
@@ -628,9 +628,9 @@ extension NoteQueryProperty on QueryBuilder<Note, Note, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Note, bool, QQueryOperations> pinnedProperty() {
+  QueryBuilder<Note, bool, QQueryOperations> isPinnedProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'pinned');
+      return query.addPropertyName(r'isPinned');
     });
   }
 

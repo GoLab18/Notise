@@ -9,5 +9,5 @@ class Note {
   late String title;
   late String text;
 
-  bool pinned = false;
+  bool isPinned = false;
 }
