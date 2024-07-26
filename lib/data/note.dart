@@ -10,6 +10,4 @@ class Note {
   late String text;
 
   bool pinned = false;
-
-  String? folderName;
 }

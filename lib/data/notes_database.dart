@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
+import 'package:notes_app/data/folder.dart';
 import 'package:notes_app/data/note.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -7,18 +8,22 @@ class NotesDatabase extends ChangeNotifier {
   static late Isar isar;
   
   final List<Note> currentNotes = [];
+  final List<Folder> currentFolders = [];
 
   static Future<void> initialization() async {
     final dir = await getApplicationDocumentsDirectory();
     isar = await Isar.open(
-      [NoteSchema],
+      [NoteSchema, FolderSchema],
       directory: dir.path
     );
   }
 
+
+  // Notes
+
   // C
   Future<void> addNote(String noteTitle, String noteText) async {
-    final newNote = Note()..title = noteTitle..text = noteText;
+    final Note newNote = Note()..title = noteTitle..text = noteText;
 
     await isar.writeTxn(() => isar.notes.put(newNote));
 
@@ -56,18 +61,6 @@ class NotesDatabase extends ChangeNotifier {
     await fetchNotes();
   }
 
-  Future<void> addToFolder(int id, String folder) async {
-    final Note? existingNote = await isar.notes.get(id);
-
-    if (existingNote == null) return;
-
-    existingNote.folderName = folder;
-    
-    await isar.writeTxn(() => isar.notes.put(existingNote));
-
-    await fetchNotes();
-  }
-
   Future<void> pinNote(int id) async {
     final Note? existingNote = await isar.notes.get(id);
 
@@ -79,5 +72,78 @@ class NotesDatabase extends ChangeNotifier {
     await isar.writeTxn(() => isar.notes.put(existingNote));
 
     await fetchNotes();
+  }
+
+
+  // Folders
+
+  // C
+  Future<void> addFolder(String name) async {
+    final newFolder = Folder()..name = name;
+
+    await isar.writeTxn(() => isar.folders.put(newFolder));
+
+    await fetchFolders();
+  }
+
+  // R
+  Future<void> fetchFolders() async {
+    List<Folder> fetchedFolders = await isar.folders.where().findAll();
+
+    currentFolders.clear();
+    currentFolders.addAll(fetchedFolders);
+
+    notifyListeners();
+  }
+
+  // U
+  Future<void> updateFolder(int id, String newName) async {
+    final Folder? existingFolder = await isar.folders.get(id);
+
+    if (existingFolder == null) return;
+
+    existingFolder.name = newName;
+
+    await isar.writeTxn(() => isar.folders.put(existingFolder));
+
+    await fetchFolders();
+  }
+
+  // D
+  Future<void> deleteFolder(int id) async {
+    await isar.writeTxn(() => isar.folders.delete(id));
+
+    await fetchFolders();
+  }
+
+
+  // Adding notes to folders
+
+  // C
+  Future<void> addNoteToFolder(int noteId, int folderId) async {
+    final Note? existingNote = await isar.notes.get(noteId);
+    final Folder? existingFolder = await isar.folders.get(folderId);
+
+    if (existingNote == null || existingFolder == null) return;
+
+    existingFolder.notesIds.add(noteId);
+    
+    await isar.writeTxn(() => isar.folders.put(existingFolder));
+
+    await fetchFolders();
+  }
+
+  // D
+  Future<void> deleteNoteFromFolder(int noteId, int folderId) async {
+    final Note? existingNote = await isar.notes.get(noteId);
+    final Folder? existingFolder = await isar.folders.get(folderId);
+
+    if (existingNote == null || existingFolder == null) return;
+
+    existingFolder.notesIds.remove(noteId);
+    
+    await isar.writeTxn(() => isar.folders.put(existingFolder));
+
+    await fetchFolders();
   }
 }
