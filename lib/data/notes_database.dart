@@ -61,7 +61,7 @@ class NotesDatabase extends ChangeNotifier {
     await fetchNotes();
   }
 
-  Future<void> pinNote(int id) async {
+  Future<void> changeNotePinStatus(int id) async {
     final Note? existingNote = await isar.notes.get(id);
 
     if(existingNote == null) return;
