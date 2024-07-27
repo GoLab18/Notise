@@ -50,7 +50,7 @@ class _NotesPageState extends State<NotesPage> {
       "Delete"
     ];
 
-    readNotes();
+    readItems();
   }
 
   @override
@@ -116,8 +116,9 @@ class _NotesPageState extends State<NotesPage> {
     context.read<NotesDatabase>().deleteNote(id);
   }
 
-  void readNotes() {
+  void readItems() {
     context.read<NotesDatabase>().fetchNotes();
+    context.read<NotesDatabase>().fetchFolders();
   }
 
   @override
