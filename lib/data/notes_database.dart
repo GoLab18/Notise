@@ -120,15 +120,29 @@ class NotesDatabase extends ChangeNotifier {
   // Adding notes to folders
 
   // C
-  Future<void> addNoteToFolder(int noteId, int folderId) async {
+  Future<void> addNoteToFolder(int noteId, int? folderId, String? newFolderName) async {
+    if (folderId == null && newFolderName == null) throw Exception("Either folderId or newFolderName has to be specified");
+
     final Note? existingNote = await isar.notes.get(noteId);
-    final Folder? existingFolder = await isar.folders.get(folderId);
-
-    if (existingNote == null || existingFolder == null) return;
-
-    existingFolder.notesIds.add(noteId);
     
-    await isar.writeTxn(() => isar.folders.put(existingFolder));
+    if (existingNote == null) throw Exception("Fetched note the from database is null");
+    
+    Folder? folder;
+    
+    // Add note to an existing folder if folderId specified
+    if (folderId != null) {
+     folder = await isar.folders.get(folderId);
+
+      // Ensuring the notesIds list is growable
+      folder!.notesIds = List<int>.from(folder.notesIds);
+
+      folder.notesIds.add(noteId);
+    }
+
+    // Add a new folder if folderId not specified
+    folder ??= Folder()..name = newFolderName!..initDate = DateTime.now()..notesIds = [noteId];
+    
+    await isar.writeTxn(() => isar.folders.put(folder!));
 
     await fetchFolders();
   }
