@@ -26,9 +26,6 @@ class _NotesPageState extends State<NotesPage> {
 
   late List pages;
 
-  late List<String> noteEdits;
-  late String currentEdit;
-
 
   @override
   void initState() {
@@ -46,10 +43,6 @@ class _NotesPageState extends State<NotesPage> {
       FoldersViewPage()
     ];
 
-    noteEdits = [
-      "Delete"
-    ];
-
     readItems();
   }
 
@@ -57,6 +50,7 @@ class _NotesPageState extends State<NotesPage> {
   void dispose() {
     titleController.dispose();
     textController.dispose();
+    folderNameController.dispose();
 
     super.dispose();
   }
