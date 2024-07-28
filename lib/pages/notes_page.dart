@@ -94,7 +94,7 @@ class _NotesPageState extends State<NotesPage> {
   void createFolder() {
     showDialog(
       context: context,
-      builder: (BuildContext context) => AddToFolderWindow(
+      builder: (BuildContext context) => AddFolderWindow(
         folderNameController: folderNameController,
         onAddPressed: () {
             context.read<NotesDatabase>().addFolder(folderNameController.text);

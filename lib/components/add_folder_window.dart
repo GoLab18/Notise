@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/components/button_template.dart';
 
-class AddToFolderWindow extends StatelessWidget {
+class AddFolderWindow extends StatelessWidget {
   final TextEditingController folderNameController;
 
   final VoidCallback onAddPressed;
   final VoidCallback onCancelPressed;
 
-  const AddToFolderWindow({
+  const AddFolderWindow({
     super.key,
     required this.folderNameController,
     required this.onAddPressed,
