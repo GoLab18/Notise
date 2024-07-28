@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:notes_app/components/custom_bottom_sheet.dart';
 import 'package:notes_app/data/note.dart';
 import 'package:notes_app/data/notes_database.dart';
 import 'package:notes_app/pages/note_details_page.dart';
+import 'package:notes_app/util/date_util.dart';
 import 'package:provider/provider.dart';
 
 class NotesViewPage extends StatefulWidget {
@@ -26,22 +28,21 @@ class _NotesViewPageState extends State<NotesViewPage> {
   late Timer? _longPressTimer;
 
 
-  void holdInteraction(int index) {
+  void holdInteraction(int index, Note note) {
     setState(() {
     _scales[index] = _scalePressed;
     _durationsMs[index] = _durationDefault;
     });
-
-    // On note selection operations
-    // widget.onNoteSelected(index);
 
     _longPressTimer = Timer(
       Duration(
         seconds: _onHoldBottomSheetOpenTime
       ),
       () => showBottomSheet(
-      context: context,
-      builder: (BuildContext context) => const CustomBottomSheet()
+        context: context,
+        builder: (BuildContext context) => CustomBottomSheet(
+          note: note
+        )
       )
     );
   }
@@ -81,7 +82,7 @@ class _NotesViewPageState extends State<NotesViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final db = context.watch<NotesDatabase>();
+    final NotesDatabase db = context.watch<NotesDatabase>();
 
     List<Note> currentNotes = db.currentNotes;
 
@@ -94,7 +95,7 @@ class _NotesViewPageState extends State<NotesViewPage> {
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          mainAxisExtent: 120
+          mainAxisExtent: 140
         ),
         itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
@@ -102,7 +103,7 @@ class _NotesViewPageState extends State<NotesViewPage> {
               onNoteClick(context, index, currentNotes[index]);
             },
             onLongPress: () {
-              holdInteraction(index);
+              holdInteraction(index, currentNotes[index]);
             },
             onLongPressUp: () {
               holdEnded(index);
@@ -152,6 +153,37 @@ class _NotesViewPageState extends State<NotesViewPage> {
                           maxLines: 4,
                           softWrap: true
                         ),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8, right: 8, bottom: 6),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          
+                          // Date
+                          Text(
+                            DateUtil.getCurrentDate(currentNotes[index].initDate),
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontSize: 12
+                            )
+                          ),
+                      
+                          // Is it pinned
+                          Visibility(
+                            visible: currentNotes[index].isPinned,
+                            child: Transform.rotate(
+                              angle: pi / 4,
+                              child: const Icon(
+                                color: Colors.white,
+                                Icons.push_pin_outlined,
+                                size: 14,
+                              )
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   ]
