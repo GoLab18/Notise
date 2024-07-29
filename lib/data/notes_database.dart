@@ -116,6 +116,19 @@ class NotesDatabase extends ChangeNotifier {
     await fetchFolders();
   }
 
+  Future<void> changeFolderPinStatus(int id) async {
+    final Folder? existingFolder = await isar.folders.get(id);
+
+    if(existingFolder == null) return;
+
+    // Reverse the pin state
+    existingFolder.isPinned = !existingFolder.isPinned;
+
+    await isar.writeTxn(() => isar.folders.put(existingFolder));
+
+    await fetchFolders();
+  }
+
 
   // Adding notes to folders
 
@@ -135,7 +148,7 @@ class NotesDatabase extends ChangeNotifier {
 
       // Ensuring the notesIds list is growable
       folder!.notesIds = List<int>.from(folder.notesIds);
-
+      
       folder.notesIds.add(noteId);
     }
 
