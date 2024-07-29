@@ -24,14 +24,14 @@ class _NotesViewPageState extends State<NotesViewPage> {
   final Map<int, double> _scales = {};
   final Map<int, int> _durationsMs = {};
 
-  final _onHoldBottomSheetOpenTime = 1;
+  final int _onHoldBottomSheetOpenTime = 1;
   late Timer? _longPressTimer;
 
 
   void holdInteraction(int index, Note note) {
     setState(() {
-    _scales[index] = _scalePressed;
-    _durationsMs[index] = _durationDefault;
+      _scales[index] = _scalePressed;
+      _durationsMs[index] = _durationDefault;
     });
 
     _longPressTimer = Timer(
@@ -52,12 +52,12 @@ class _NotesViewPageState extends State<NotesViewPage> {
       _longPressTimer!.cancel();
     }
     setState(() {
-    _scales[index] = _scaleDefault;
-    _durationsMs[index] = _durationDefault * 2;
+      _scales[index] = _scaleDefault;
+      _durationsMs[index] = _durationDefault * 2;
     });
   }
 
-  void onNoteClick( BuildContext context, int index, Note note) {
+  void onNoteClick(BuildContext context, int index, Note note) {
     setState(() {
       _scales[index] = _scalePressed;
       _durationsMs[index] = _durationDefault;
