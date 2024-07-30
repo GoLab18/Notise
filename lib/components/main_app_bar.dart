@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/pages/note_details_page.dart';
-import 'package:notes_app/pages/settings_page.dart';
+import 'package:notise/pages/note_details_page.dart';
+import 'package:notise/pages/settings_page.dart';
 
 class MainAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String? title;

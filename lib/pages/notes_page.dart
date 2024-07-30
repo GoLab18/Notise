@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/components/add_folder_window.dart';
-import 'package:notes_app/components/add_note_window.dart';
-import 'package:notes_app/components/custom_floating_action_button.dart';
-import 'package:notes_app/components/main_app_bar.dart';
-import 'package:notes_app/pages/notes_view_page.dart';
-import 'package:notes_app/data/notes_database.dart';
-import 'package:notes_app/pages/folders_view_page.dart';
+import 'package:notise/components/add_folder_window.dart';
+import 'package:notise/components/add_note_window.dart';
+import 'package:notise/components/custom_floating_action_button.dart';
+import 'package:notise/components/main_app_bar.dart';
+import 'package:notise/pages/notes_view_page.dart';
+import 'package:notise/data/notes_database.dart';
+import 'package:notise/pages/folders_view_page.dart';
 import 'package:provider/provider.dart';
 
 class NotesPage extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/data/notes_database.dart';
-import 'package:notes_app/pages/notes_page.dart';
+import 'package:notise/data/notes_database.dart';
+import 'package:notise/pages/notes_page.dart';
 import 'package:provider/provider.dart';
 
 void main() async {

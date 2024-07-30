@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/components/button_template.dart';
-import 'package:notes_app/data/folder.dart';
-import 'package:notes_app/data/notes_database.dart';
+import 'package:notise/components/button_template.dart';
+import 'package:notise/data/folder.dart';
+import 'package:notise/data/notes_database.dart';
 import 'package:provider/provider.dart';
 
 class AddToFolderWindow extends StatefulWidget {

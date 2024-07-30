@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/components/main_app_bar.dart';
-import 'package:notes_app/data/note.dart';
-import 'package:notes_app/data/notes_database.dart';
+import 'package:notise/components/main_app_bar.dart';
+import 'package:notise/data/note.dart';
+import 'package:notise/data/notes_database.dart';
 import 'package:provider/provider.dart';
 
 class NoteDetailsPage extends StatefulWidget {

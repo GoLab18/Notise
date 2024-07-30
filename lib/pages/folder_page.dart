@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/data/folder.dart';
+import 'package:notise/data/folder.dart';
 
 class FolderPage extends StatefulWidget {
   final Folder folder;

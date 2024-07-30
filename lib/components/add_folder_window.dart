@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/components/button_template.dart';
+import 'package:notise/components/button_template.dart';
 
 class AddFolderWindow extends StatelessWidget {
   final TextEditingController folderNameController;
