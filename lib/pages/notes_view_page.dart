@@ -10,7 +10,14 @@ import 'package:notise/util/date_util.dart';
 import 'package:provider/provider.dart';
 
 class NotesViewPage extends StatefulWidget {
-  const NotesViewPage({super.key});
+  final VoidCallback onBottomSheetOpened;
+  final VoidCallback onBottomSheetClosed;
+
+  const NotesViewPage({
+    super.key,
+    required this.onBottomSheetOpened,
+    required this.onBottomSheetClosed
+  });
 
   @override
   State<NotesViewPage> createState() => _NotesViewPageState();
@@ -38,12 +45,16 @@ class _NotesViewPageState extends State<NotesViewPage> {
       Duration(
         seconds: _onHoldBottomSheetOpenTime
       ),
-      () => showBottomSheet(
-        context: context,
-        builder: (BuildContext context) => CustomBottomSheet(
-          note: note
-        )
-      )
+      () {
+        widget.onBottomSheetOpened();
+        showBottomSheet(
+          context: context,
+          builder: (BuildContext context) => CustomBottomSheet(
+            note: note,
+            onBottomSheetClosed: widget.onBottomSheetClosed
+          )
+        );
+      }
     );
   }
 

@@ -10,7 +10,14 @@ import 'package:notise/util/date_util.dart';
 import 'package:provider/provider.dart';
 
 class FoldersViewPage extends StatefulWidget {
-  const FoldersViewPage({super.key});
+  final VoidCallback onBottomSheetOpened;
+  final VoidCallback onBottomSheetClosed;
+
+  const FoldersViewPage({
+    super.key,
+    required this.onBottomSheetOpened,
+    required this.onBottomSheetClosed
+  });
 
   @override
   State<FoldersViewPage> createState() => _FoldersViewPageState();
@@ -38,12 +45,16 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
       Duration(
         seconds: _onHoldBottomSheetOpenTime
       ),
-      () => showBottomSheet(
-        context: context,
-        builder: (BuildContext context) => CustomBottomSheet(
-          folder: folder
-        )
-      )
+      () {
+        widget.onBottomSheetOpened();
+        showBottomSheet(
+          context: context,
+          builder: (BuildContext context) => CustomBottomSheet(
+            folder: folder,
+            onBottomSheetClosed: widget.onBottomSheetClosed
+          )
+        );
+      }
     );
   }
 

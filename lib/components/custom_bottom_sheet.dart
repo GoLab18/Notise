@@ -11,11 +11,13 @@ import 'package:provider/provider.dart';
 class CustomBottomSheet extends StatefulWidget {
   final Note? note;
   final Folder? folder;
+  final VoidCallback onBottomSheetClosed;
 
   const CustomBottomSheet({
     super.key,
     this.note,
-    this.folder
+    this.folder,
+    required this.onBottomSheetClosed
   }) : assert(note != null || folder != null, 'Specifically one item must be provided');
 
   @override
@@ -58,6 +60,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
     if (widget.note != null) context.read<NotesDatabase>().changeNotePinStatus(id);
     if (widget.folder != null) context.read<NotesDatabase>().changeFolderPinStatus(id);
 
+    widget.onBottomSheetClosed();
     Navigator.pop(context);
   }
 
@@ -65,6 +68,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
     if (widget.note != null) context.read<NotesDatabase>().deleteNote(id);
     if (widget.folder != null) context.read<NotesDatabase>().deleteFolder(id);
 
+    widget.onBottomSheetClosed();
     Navigator.pop(context);
   }
 
@@ -76,6 +80,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
           noteId: widget.note!.id,
           currentFolders: currentFolders,
           popPreviusWindow: () {
+            widget.onBottomSheetClosed();
             Navigator.pop(context);
           }
         )
@@ -90,12 +95,15 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
 
             folderNameController.clear();
 
+            widget.onBottomSheetClosed();
             Navigator.pop(dialogContext);
             Navigator.pop(context);
           },
           onCancelPressed: () {
             folderNameController.clear();
 
+
+            widget.onBottomSheetClosed();
             Navigator.pop(dialogContext);
             Navigator.pop(context);
           }

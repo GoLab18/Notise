@@ -26,6 +26,9 @@ class _NotesPageState extends State<NotesPage> {
 
   late List pages;
 
+  // For disabling UI parts on bottom sheet opening
+  late bool _isBottomSheetOpen;
+
 
   @override
   void initState() {
@@ -38,9 +41,33 @@ class _NotesPageState extends State<NotesPage> {
 
     _currentIndex = 0;
 
-    pages = const [
-      NotesViewPage(),
-      FoldersViewPage()
+    _isBottomSheetOpen = false;
+
+    pages = [
+      NotesViewPage(
+        onBottomSheetOpened: () {
+          setState(() {
+            _isBottomSheetOpen = true;
+          });
+        },
+        onBottomSheetClosed: () {
+          setState(() {
+            _isBottomSheetOpen = false;
+          });
+        }
+      ),
+      FoldersViewPage(
+        onBottomSheetOpened: () {
+          setState(() {
+            _isBottomSheetOpen = true;
+          });
+        },
+        onBottomSheetClosed: () {
+          setState(() {
+            _isBottomSheetOpen = false;
+          });
+        }
+      )
     ];
 
     readItems();
@@ -122,8 +149,11 @@ class _NotesPageState extends State<NotesPage> {
       appBar: const MainAppBar(
         title: "Notes"
       ),
-      floatingActionButton: CustomFloatingActionButton(
-        onPressed: (_currentIndex == 0) ? createNote : createFolder
+      floatingActionButton: Visibility(
+        visible: !_isBottomSheetOpen,
+        child: CustomFloatingActionButton(
+          onPressed: _currentIndex == 0 ? createNote : createFolder
+        ),
       ),
       body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
