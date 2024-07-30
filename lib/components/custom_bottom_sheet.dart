@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:notes_app/components/add_folder_window.dart';
-import 'package:notes_app/components/add_to_folder_window.dart';
-import 'package:notes_app/data/folder.dart';
-import 'package:notes_app/data/note.dart';
-import 'package:notes_app/data/notes_database.dart';
+import 'package:notise/components/add_folder_window.dart';
+import 'package:notise/components/add_to_folder_window.dart';
+import 'package:notise/data/folder.dart';
+import 'package:notise/data/note.dart';
+import 'package:notise/data/notes_database.dart';
 import 'package:provider/provider.dart';
 
 class CustomBottomSheet extends StatefulWidget {
@@ -16,7 +16,7 @@ class CustomBottomSheet extends StatefulWidget {
     super.key,
     this.note,
     this.folder
-  }) : assert(note != null || folder != null, 'At least one item must be provided');
+  }) : assert(note != null || folder != null, 'Specifically one item must be provided');
 
   @override
   State<CustomBottomSheet> createState() => _CustomBottomSheetState();
@@ -50,26 +50,22 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
   late double pinAngle = initPinAngle();
   
 
-  void pinAction(int noteId) {
+  void pinAction(int id) {
     setState(() {
       pinAngle = (pinAngle == pi / 4) ? 0 : pi / 4;
     });
 
-    context.read<NotesDatabase>().changeNotePinStatus(noteId);
-
-    fetchItems();
+    if (widget.note != null) context.read<NotesDatabase>().changeNotePinStatus(id);
+    if (widget.folder != null) context.read<NotesDatabase>().changeFolderPinStatus(id);
 
     Navigator.pop(context);
   }
 
   void deleteItem(int id) {
+    if (widget.note != null) context.read<NotesDatabase>().deleteNote(id);
+    if (widget.folder != null) context.read<NotesDatabase>().deleteFolder(id);
+
     Navigator.pop(context);
-
-    context.read<NotesDatabase>().deleteNote(id);
-  }
-
-  void fetchItems() {
-    context.read<NotesDatabase>().fetchNotes();
   }
 
   void addToFolder(List<Folder> currentFolders) {
@@ -107,6 +103,15 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
     );
   }
 
+  void editFolder() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => const AlertDialog(
+        
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final NotesDatabase db = context.watch<NotesDatabase>();
@@ -131,16 +136,26 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                   child: const Icon(Icons.push_pin)
                 ),
                 onPressed: () {
-                  pinAction(widget.note?.id ?? widget.folder!.id);
+                  if (widget.note != null) pinAction(widget.note!.id);
+                  if (widget.folder != null) pinAction(widget.folder!.id);
                 }
               ),
 
               // Folder
-              IconButton(
+              if (widget.note != null) IconButton(
                 color: Colors.white,
                 icon: const Icon(Icons.folder),
                 onPressed: () {
-                  addToFolder(currentFolders);                  
+                  addToFolder(currentFolders);
+                }
+              ),
+
+              // Edit
+              if (widget.folder != null) IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  editFolder();                  
                 }
               ),
 
@@ -148,7 +163,10 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
               IconButton(
                 color: Colors.white,
                 icon: const Icon(Icons.delete),
-                onPressed: () {}
+                onPressed: () {
+                  if (widget.note != null) deleteItem(widget.note!.id);
+                  if (widget.folder != null) deleteItem(widget.folder!.id);
+                }
               )
             ]
           )
