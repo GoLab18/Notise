@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notise/pages/folder_page.dart';
 import 'package:notise/pages/note_details_page.dart';
 import 'package:notise/pages/settings_page.dart';
 
@@ -79,7 +80,7 @@ class _MainAppBarState extends State<MainAppBar> {
       actions: [
 
         // Different buttons based on different pages
-        (context.findAncestorWidgetOfExactType<NoteDetailsPage>() == null)
+        (context.findAncestorWidgetOfExactType<NoteDetailsPage>() == null && context.findAncestorWidgetOfExactType<FolderPage>() == null)
         ? IconButton(
           onPressed: () {
             widget.isInEditState
