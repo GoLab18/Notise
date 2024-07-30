@@ -126,60 +126,63 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
 
     List<Folder> currentFolders = db.currentFolders;
 
-    return BottomSheet(
-      backgroundColor: const Color.fromARGB(255, 34, 2, 52),
-      onClosing: () {},
-      builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-
-              // Pin
-              IconButton(
-                color: Colors.white,
-                icon: Transform.rotate(
-                  angle: pinAngle,
-                  child: const Icon(Icons.push_pin)
+    return PopScope(
+      onPopInvoked: (didPop) => widget.onBottomSheetClosed(),
+      child: BottomSheet(
+        backgroundColor: const Color.fromARGB(255, 34, 2, 52),
+        onClosing: () {},
+        builder: (BuildContext context) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+      
+                // Pin
+                IconButton(
+                  color: Colors.white,
+                  icon: Transform.rotate(
+                    angle: pinAngle,
+                    child: const Icon(Icons.push_pin)
+                  ),
+                  onPressed: () {
+                    if (widget.note != null) pinAction(widget.note!.id);
+                    if (widget.folder != null) pinAction(widget.folder!.id);
+                  }
                 ),
-                onPressed: () {
-                  if (widget.note != null) pinAction(widget.note!.id);
-                  if (widget.folder != null) pinAction(widget.folder!.id);
-                }
-              ),
-
-              // Folder
-              if (widget.note != null) IconButton(
-                color: Colors.white,
-                icon: const Icon(Icons.folder),
-                onPressed: () {
-                  addToFolder(currentFolders);
-                }
-              ),
-
-              // Edit
-              if (widget.folder != null) IconButton(
-                color: Colors.white,
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  editFolder();                  
-                }
-              ),
-
-              // Delete
-              IconButton(
-                color: Colors.white,
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  if (widget.note != null) deleteItem(widget.note!.id);
-                  if (widget.folder != null) deleteItem(widget.folder!.id);
-                }
-              )
-            ]
-          )
-        );
-      }
+      
+                // Folder
+                if (widget.note != null) IconButton(
+                  color: Colors.white,
+                  icon: const Icon(Icons.folder),
+                  onPressed: () {
+                    addToFolder(currentFolders);
+                  }
+                ),
+      
+                // Edit
+                if (widget.folder != null) IconButton(
+                  color: Colors.white,
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    editFolder();                  
+                  }
+                ),
+      
+                // Delete
+                IconButton(
+                  color: Colors.white,
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    if (widget.note != null) deleteItem(widget.note!.id);
+                    if (widget.folder != null) deleteItem(widget.folder!.id);
+                  }
+                )
+              ]
+            )
+          );
+        }
+      ),
     );
   }
 }
