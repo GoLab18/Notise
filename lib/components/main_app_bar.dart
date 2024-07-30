@@ -68,12 +68,10 @@ class _MainAppBarState extends State<MainAppBar> {
           },
         )
         : null,
-      title: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: Text(
-            widget.title ?? "" 
-          ),
-      ),
+      title: Text(
+          widget.title ?? "" 
+        ),
+      centerTitle: true,
       backgroundColor: Colors.blue.shade900,
       foregroundColor: Colors.white,
       elevation: 4.0,
@@ -108,7 +106,6 @@ class _MainAppBarState extends State<MainAppBar> {
         )
         : PopupMenuButton(
           onSelected: (String value) {
-            // TODO custom normalized dialog window
             if (value == "Delete") {
               widget.popupMenuOptionsCallbacks![value]!.call();
               Navigator.pop(context);
