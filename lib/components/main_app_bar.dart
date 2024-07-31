@@ -28,15 +28,7 @@ class MainAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _MainAppBarState extends State<MainAppBar> {
-  late bool isInEditState;
 
-
-  @override
-  void initState() {
-    super.initState();
-
-    isInEditState = widget.isInEditState;
-  }
 
   void openSettings() {
     Navigator.push<void>(
@@ -49,16 +41,6 @@ class _MainAppBarState extends State<MainAppBar> {
 
   @override
   Widget build(BuildContext context) {
-
-    void editStateFinished() {
-      setState(() {
-        isInEditState = false;
-      });
-
-      // Function editStateFinished() is only called when the app bar is reactive
-      widget.onEditStateFinished!();
-    }
-
     return AppBar(
       leading: widget.showBackButton
         ? BackButton(
@@ -80,24 +62,17 @@ class _MainAppBarState extends State<MainAppBar> {
         // Different buttons based on different pages
         (context.findAncestorWidgetOfExactType<NoteDetailsPage>() == null && context.findAncestorWidgetOfExactType<FolderPage>() == null)
         ? IconButton(
-          onPressed: () {
-            widget.isInEditState
-              ? editStateFinished()
-              : openSettings();
-          },
-          icon: Icon(
-            widget.isInEditState
-              ? Icons.check
-              : Icons.settings,
+          onPressed: () => openSettings(),
+          icon: const Icon(
+            Icons.settings,
             color: Colors.white
           )
         )
 
-        // NoteDetailsPage
         : widget.isInEditState
         ? IconButton(
           onPressed: () {
-            editStateFinished();
+            widget.onEditStateFinished!();
           },
           icon: const Icon(
             Icons.check,
