@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:notise/components/button_template.dart';
 
-class AddFolderWindow extends StatelessWidget {
+class AddEditFolderWindow extends StatelessWidget {
+  final String actionTitle;
+  final String sumbitButtonName;
+  
   final TextEditingController folderNameController;
 
   final VoidCallback onAddPressed;
   final VoidCallback onCancelPressed;
 
-  const AddFolderWindow({
+  const AddEditFolderWindow({
     super.key,
+    required this.actionTitle,
+    required this.sumbitButtonName,
     required this.folderNameController,
     required this.onAddPressed,
     required this.onCancelPressed
@@ -32,10 +37,10 @@ class AddFolderWindow extends StatelessWidget {
                 children: [
                   
                   // Action title
-                  const Text(
-                    "New folder",
+                  Text(
+                    actionTitle,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20
                     ),
@@ -80,7 +85,7 @@ class AddFolderWindow extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ButtonTemplate(
-                  text: "Create",
+                  text: sumbitButtonName,
                   onPressed: onAddPressed
                 ),
                 ButtonTemplate(
