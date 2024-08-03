@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:notise/components/add_folder_window.dart';
+import 'package:notise/components/add_edit_folder_window.dart';
 import 'package:notise/components/add_to_folder_window.dart';
 import 'package:notise/data/folder.dart';
 import 'package:notise/data/note.dart';
@@ -12,12 +12,14 @@ class CustomBottomSheet extends StatefulWidget {
   final Note? note;
   final Folder? folder;
   final VoidCallback onBottomSheetClosed;
+  final bool allowNoteFromFolderDeletion;
 
   const CustomBottomSheet({
     super.key,
     this.note,
     this.folder,
-    required this.onBottomSheetClosed
+    required this.onBottomSheetClosed,
+    this.allowNoteFromFolderDeletion = false
   }) : assert(note != null || folder != null, 'Specifically one item must be provided');
 
   @override
@@ -64,9 +66,9 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
     Navigator.pop(context);
   }
 
-  void deleteItem(int id) {
-    if (widget.note != null) context.read<NotesDatabase>().deleteNote(id);
-    if (widget.folder != null) context.read<NotesDatabase>().deleteFolder(id);
+  void deleteItem() {
+    if (widget.note != null) context.read<NotesDatabase>().deleteNote(widget.note!);
+    if (widget.folder != null) context.read<NotesDatabase>().deleteFolder(widget.folder!.id);
 
     widget.onBottomSheetClosed();
     Navigator.pop(context);
@@ -77,14 +79,16 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
       context: context,
       builder: (BuildContext dialogContext) => currentFolders.isNotEmpty
         ? AddToFolderWindow(
-          noteId: widget.note!.id,
+          note: widget.note!,
           currentFolders: currentFolders,
           popPreviusWindow: () {
             widget.onBottomSheetClosed();
             Navigator.pop(context);
           }
         )
-        : AddFolderWindow(
+        : AddEditFolderWindow(
+          actionTitle: "New folder",
+          sumbitButtonName: "Create",
           folderNameController: folderNameController,
           onAddPressed: () {
             dialogContext.read<NotesDatabase>().addNoteToFolder(
@@ -112,10 +116,34 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
   }
 
   void editFolder() {
+    folderNameController.text = widget.folder!.name;
+    
     showDialog(
       context: context,
-      builder: (BuildContext context) => const AlertDialog(
-        
+      builder: (BuildContext dialogContext) => AddEditFolderWindow(
+        actionTitle: "Edit folder",
+        sumbitButtonName: "Ok",
+        folderNameController: folderNameController,
+        onAddPressed: () {
+          dialogContext.read<NotesDatabase>().updateFolder(
+            widget.folder!.id,
+            folderNameController.text
+          );
+
+          folderNameController.clear();
+
+          widget.onBottomSheetClosed();
+          Navigator.pop(dialogContext);
+          Navigator.pop(context);
+        },
+        onCancelPressed: () {
+          folderNameController.clear();
+
+
+          widget.onBottomSheetClosed();
+          Navigator.pop(dialogContext);
+          Navigator.pop(context);
+        }
       )
     );
   }
@@ -165,7 +193,20 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                   color: Colors.white,
                   icon: const Icon(Icons.edit),
                   onPressed: () {
-                    editFolder();                  
+                    editFolder();
+                  }
+                ),
+
+                // Discard from the current folder
+                if (widget.note != null && widget.allowNoteFromFolderDeletion == true) IconButton(
+                  color: Colors.white,
+                  icon: const Icon(
+                    Icons.folder_off
+                  ),
+                  onPressed: () {
+                    context.read<NotesDatabase>().deleteNoteFromFolder(widget.note!.id);
+
+                    Navigator.pop(context);
                   }
                 ),
       
@@ -174,8 +215,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                   color: Colors.white,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    if (widget.note != null) deleteItem(widget.note!.id);
-                    if (widget.folder != null) deleteItem(widget.folder!.id);
+                    deleteItem();
                   }
                 )
               ]
