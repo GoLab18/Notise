@@ -62,10 +62,6 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
     context.read<NotesDatabase>().updateNote(id, newTitle, newText);
   }
 
-  void deleteNote(int id) {
-    context.read<NotesDatabase>().deleteNote(id);
-  }
-
   @override
   void dispose() {
     _titleController.dispose();
@@ -88,7 +84,7 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
         onEditStateFinished: onEditStateFinished,
         popupMenuOptionsCallbacks: {
           "Delete": () {
-            deleteNote(widget.note.id);
+            context.read<NotesDatabase>().deleteNote(widget.note);
           }
         },
       ),

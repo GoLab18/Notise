@@ -35,6 +35,13 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
   late Timer? _longPressTimer;
 
 
+  @override
+  void initState() {
+    super.initState();
+
+    context.read<NotesDatabase>().fetchFolderNotesAmounts();
+  }
+
   void holdInteraction(int index, Folder folder) {
     setState(() {
       _scales[index] = _scalePressed;
@@ -96,6 +103,7 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
     final NotesDatabase db = context.watch<NotesDatabase>();
 
     List<Folder> currentFolders = db.currentFolders;
+    Map<int, int> currentFoldersNotesAmounts = db.currentFoldersNotesAmounts;
     
     return ListView.builder(
       itemCount: currentFolders.length,
@@ -182,7 +190,7 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
                     
                                 // Amount of notes inside
                                 Text(
-                                  currentFolders[index].notesIds.length.toString(),
+                                  currentFoldersNotesAmounts[currentFolders[index].id].toString(),
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:notise/components/button_template.dart';
 import 'package:notise/data/folder.dart';
+import 'package:notise/data/note.dart';
 import 'package:notise/data/notes_database.dart';
 import 'package:provider/provider.dart';
 
 class AddToFolderWindow extends StatefulWidget {
-  final int noteId;
+  final Note note;
   final List<Folder> currentFolders;
   final void Function()? popPreviusWindow;
 
   const AddToFolderWindow({
     super.key,
-    required this.noteId,
+    required this.note,
     required this.currentFolders,
     this.popPreviusWindow
   });
@@ -28,20 +29,13 @@ class _AddToFolderWindowState extends State<AddToFolderWindow> {
 
   void addOrShowError() {
     if (_selectedFolderId != null) {
-
-        // Is note inside the specified folder
-        bool isInsideFolder = (
-          widget.currentFolders.firstWhere((folder) => folder.id == _selectedFolderId).notesIds.isNotEmpty
-          && widget.currentFolders.firstWhere((folder) => folder.id == _selectedFolderId).notesIds.contains(widget.noteId)
-        );
-
-        if (isInsideFolder) {
+        if (widget.note.folderId == _selectedFolderId) {
           setState(() {
             isErrorVisible = true;
           });
         } else {
           context.read<NotesDatabase>().addNoteToFolder(
-            widget.noteId,
+            widget.note.id,
             _selectedFolderId!,
             null
           );
