@@ -31,11 +31,6 @@ const FolderSchema = CollectionSchema(
       id: 2,
       name: r'name',
       type: IsarType.string,
-    ),
-    r'notesIds': PropertySchema(
-      id: 3,
-      name: r'notesIds',
-      type: IsarType.longList,
     )
   },
   estimateSize: _folderEstimateSize,
@@ -59,7 +54,6 @@ int _folderEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.name.length * 3;
-  bytesCount += 3 + object.notesIds.length * 8;
   return bytesCount;
 }
 
@@ -72,7 +66,6 @@ void _folderSerialize(
   writer.writeDateTime(offsets[0], object.initDate);
   writer.writeBool(offsets[1], object.isPinned);
   writer.writeString(offsets[2], object.name);
-  writer.writeLongList(offsets[3], object.notesIds);
 }
 
 Folder _folderDeserialize(
@@ -86,7 +79,6 @@ Folder _folderDeserialize(
   object.initDate = reader.readDateTime(offsets[0]);
   object.isPinned = reader.readBool(offsets[1]);
   object.name = reader.readString(offsets[2]);
-  object.notesIds = reader.readLongList(offsets[3]) ?? [];
   return object;
 }
 
@@ -103,8 +95,6 @@ P _folderDeserializeProp<P>(
       return (reader.readBool(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
-    case 3:
-      return (reader.readLongList(offset) ?? []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -441,144 +431,6 @@ extension FolderQueryFilter on QueryBuilder<Folder, Folder, QFilterCondition> {
       ));
     });
   }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesIdsElementEqualTo(
-      int value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'notesIds',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition>
-      notesIdsElementGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'notesIds',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesIdsElementLessThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'notesIds',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesIdsElementBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'notesIds',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesIdsLengthEqualTo(
-      int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'notesIds',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesIdsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'notesIds',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesIdsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'notesIds',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesIdsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'notesIds',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesIdsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'notesIds',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesIdsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'notesIds',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
 }
 
 extension FolderQueryObject on QueryBuilder<Folder, Folder, QFilterCondition> {}
@@ -692,12 +544,6 @@ extension FolderQueryWhereDistinct on QueryBuilder<Folder, Folder, QDistinct> {
       return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
     });
   }
-
-  QueryBuilder<Folder, Folder, QDistinct> distinctByNotesIds() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'notesIds');
-    });
-  }
 }
 
 extension FolderQueryProperty on QueryBuilder<Folder, Folder, QQueryProperty> {
@@ -722,12 +568,6 @@ extension FolderQueryProperty on QueryBuilder<Folder, Folder, QQueryProperty> {
   QueryBuilder<Folder, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
-    });
-  }
-
-  QueryBuilder<Folder, List<int>, QQueryOperations> notesIdsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'notesIds');
     });
   }
 }

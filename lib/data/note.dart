@@ -11,5 +11,7 @@ class Note {
 
   bool isPinned = false;
 
+  int? folderId; 
+
   late DateTime initDate;
 }

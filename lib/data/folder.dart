@@ -7,7 +7,6 @@ class Folder {
   Id id = Isar.autoIncrement;
 
   late String name;
-  List<int> notesIds = [];
 
   bool isPinned = false;
 
