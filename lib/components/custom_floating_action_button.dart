@@ -49,7 +49,7 @@ class _CustomFloatingActionButtonState extends State<CustomFloatingActionButton>
       child: FloatingActionButton(
         onPressed: handlePressed,
         shape: const CircleBorder(),
-        backgroundColor: Colors.blue.shade900,
+        backgroundColor: const Color.fromARGB(255, 5, 51, 120),
         foregroundColor: Colors.white,
         child: const Icon(Icons.add)
       ),
