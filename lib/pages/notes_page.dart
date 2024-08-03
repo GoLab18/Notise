@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notise/components/add_folder_window.dart';
+import 'package:notise/components/add_edit_folder_window.dart';
 import 'package:notise/components/add_note_window.dart';
 import 'package:notise/components/custom_floating_action_button.dart';
 import 'package:notise/components/main_app_bar.dart';
@@ -95,7 +95,7 @@ class _NotesPageState extends State<NotesPage> {
           titleController: titleController,
           textController: textController,
           onAddPressed:  () {
-            context.read<NotesDatabase>().addNote(titleController.text, textController.text);
+            context.read<NotesDatabase>().addNote(titleController.text, textController.text, null);
 
             titleController.clear();
             textController.clear();
@@ -115,7 +115,9 @@ class _NotesPageState extends State<NotesPage> {
   void createFolder() {
     showDialog(
       context: context,
-      builder: (BuildContext context) => AddFolderWindow(
+      builder: (BuildContext context) => AddEditFolderWindow(
+        actionTitle: "New folder",
+        sumbitButtonName: "Create",
         folderNameController: folderNameController,
         onAddPressed: () {
             context.read<NotesDatabase>().addFolder(folderNameController.text);
@@ -131,10 +133,6 @@ class _NotesPageState extends State<NotesPage> {
         }
       )
     );
-  }
-
-  void deleteNote(int id) {
-    context.read<NotesDatabase>().deleteNote(id);
   }
 
   void readItems() {
