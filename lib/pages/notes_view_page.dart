@@ -10,14 +10,23 @@ import 'package:notise/util/date_util.dart';
 import 'package:provider/provider.dart';
 
 class NotesViewPage extends StatefulWidget {
+  // Bottom sheet related fields
   final VoidCallback onBottomSheetOpened;
   final VoidCallback onBottomSheetClosed;
+
+  // Folder notes view related fields
+  final bool viewSpecificFolderNotes;
+  final int? folderId;
 
   const NotesViewPage({
     super.key,
     required this.onBottomSheetOpened,
-    required this.onBottomSheetClosed
-  });
+    required this.onBottomSheetClosed,
+    this.viewSpecificFolderNotes = false,
+    this.folderId
+  }) : assert(
+    ((viewSpecificFolderNotes == true && folderId != null) || (viewSpecificFolderNotes == false && folderId == null)),
+    'Both viewSpecificFolderNotes and folderId have to be either specified or not');
 
   @override
   State<NotesViewPage> createState() => _NotesViewPageState();
@@ -51,7 +60,8 @@ class _NotesViewPageState extends State<NotesViewPage> {
           context: context,
           builder: (BuildContext context) => CustomBottomSheet(
             note: note,
-            onBottomSheetClosed: widget.onBottomSheetClosed
+            onBottomSheetClosed: widget.onBottomSheetClosed,
+            allowNoteFromFolderDeletion: widget.viewSpecificFolderNotes
           )
         );
       }
@@ -95,7 +105,15 @@ class _NotesViewPageState extends State<NotesViewPage> {
   Widget build(BuildContext context) {
     final NotesDatabase db = context.watch<NotesDatabase>();
 
-    List<Note> currentNotes = db.currentNotes;
+    List<Note> currentNotes;
+
+    if (widget.viewSpecificFolderNotes) {
+      currentNotes = db.currentNotes.where(
+        (Note note) => note.folderId == widget.folderId
+      ).toList();
+    } else {
+      currentNotes = db.currentNotes;
+    }
 
     return Padding(
       padding: const EdgeInsets.all(8),
