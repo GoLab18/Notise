@@ -9,6 +9,9 @@ class NotesDatabase extends ChangeNotifier {
   
   final List<Note> currentNotes = [];
   final List<Folder> currentFolders = [];
+  
+  Map<int, int> currentFoldersNotesAmounts = {};
+  
 
   static Future<void> initialization() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -22,12 +25,17 @@ class NotesDatabase extends ChangeNotifier {
   // Notes
 
   // C
-  Future<void> addNote(String noteTitle, String noteText) async {
+  Future<void> addNote(String noteTitle, String noteText, int? folderId) async {
     final Note newNote = Note()..title = noteTitle..text = noteText..initDate = DateTime.now();
+
+    if (folderId != null) {
+      if (await isar.folders.filter().idEqualTo(folderId).isNotEmpty()) newNote.folderId = folderId;
+    }
 
     await isar.writeTxn(() => isar.notes.put(newNote));
 
     await fetchNotes();
+    if (folderId != null) await fetchFolderNotesAmounts();
   }
 
   // R
@@ -55,10 +63,11 @@ class NotesDatabase extends ChangeNotifier {
   }
 
   // D
-  Future<void> deleteNote(int id) async {
-    await isar.writeTxn(() => isar.notes.delete(id));
+  Future<void> deleteNote(Note note) async {
+    await isar.writeTxn(() => isar.notes.delete(note.id));
 
     await fetchNotes();
+    if (note.folderId != null) await fetchFolderNotesAmounts();
   }
 
   Future<void> changeNotePinStatus(int id) async {
@@ -84,6 +93,7 @@ class NotesDatabase extends ChangeNotifier {
     await isar.writeTxn(() => isar.folders.put(newFolder));
 
     await fetchFolders();
+    await fetchFolderNotesAmounts();
   }
 
   // R
@@ -110,10 +120,24 @@ class NotesDatabase extends ChangeNotifier {
   }
 
   // D
-  Future<void> deleteFolder(int id) async {
-    await isar.writeTxn(() => isar.folders.delete(id));
+  Future<void> deleteFolder(int folderId) async {
+    List<Note> folderNotes = await isar.notes.filter().folderIdEqualTo(folderId).findAll();
+    List<int> folderNotesIds = [];
+    
+    if (folderNotes.isNotEmpty) {
+      for (Note note in folderNotes) {
+        folderNotesIds.add(note.id);
+      }
+      
+      await isar.writeTxn(() => isar.notes.deleteAll(folderNotesIds));
+
+      await fetchNotes();
+    }
+
+    await isar.writeTxn(() => isar.folders.delete(folderId));
 
     await fetchFolders();
+    await fetchFolderNotesAmounts();
   }
 
   Future<void> changeFolderPinStatus(int id) async {
@@ -130,7 +154,7 @@ class NotesDatabase extends ChangeNotifier {
   }
 
 
-  // Adding notes to folders
+  // Note operations with folders
 
   // C
   Future<void> addNoteToFolder(int noteId, int? folderId, String? newFolderName) async {
@@ -143,34 +167,84 @@ class NotesDatabase extends ChangeNotifier {
     Folder? folder;
     
     // Add note to an existing folder if folderId specified
-    if (folderId != null) {
-     folder = await isar.folders.get(folderId);
-
-      // Ensuring the notesIds list is growable
-      folder!.notesIds = List<int>.from(folder.notesIds);
-      
-      folder.notesIds.add(noteId);
-    }
+    if (folderId != null) folder = await isar.folders.get(folderId);
 
     // Add a new folder if folderId not specified
-    folder ??= Folder()..name = newFolderName!..initDate = DateTime.now()..notesIds = [noteId];
-    
-    await isar.writeTxn(() => isar.folders.put(folder!));
+    if (folder == null) {
+      folder = Folder()..name = newFolderName!..initDate = DateTime.now();
 
-    await fetchFolders();
+      await isar.writeTxn(() => isar.folders.put(folder!));
+
+      await fetchFolders();
+    }
+
+    existingNote.folderId = folder.id;
+    
+    await isar.writeTxn(() => isar.notes.put(existingNote));
+
+    await fetchNotes();
+    await fetchFolderNotesAmounts();
+  }
+
+  // R
+  Future<void> fetchFolderNotesAmounts() async {
+    List<Note> fetchedFoldersNotes = await isar.notes.filter()
+      .folderIdIsNotNull().sortByFolderId().findAll();
+
+    List<Folder> fetchedFolders = await isar.folders.where().
+      sortByIsPinnedDesc().thenByInitDateDesc().findAll();
+
+    Map<int, int> fetchedFoldersNotesAmounts = {};
+
+    // Init the map of existing folders with default amounts = 0
+    for (final Folder folder in fetchedFolders) {
+      fetchedFoldersNotesAmounts[folder.id] = 0;
+    }
+
+    int? currentFolderId;
+    int currentCount = 0;
+
+    // Counting the notes inside all folders
+    for (final Note note in fetchedFoldersNotes) {
+      if (note.folderId != currentFolderId) {
+        
+        // Store if folderId changed
+        if (currentFolderId != null) {
+          fetchedFoldersNotesAmounts[currentFolderId] = currentCount;
+        }
+
+        fetchedFoldersNotesAmounts[note.folderId!] = 1;
+
+        currentFolderId = note.folderId;
+        currentCount = 1;
+      } else {
+        // Increment if folderId stays the same
+        currentCount++;
+      }
+    }
+
+    // Update the last folder's count
+    if (currentFolderId != null) {
+      fetchedFoldersNotesAmounts[currentFolderId] = currentCount;
+    }
+
+    currentFoldersNotesAmounts.clear();
+    currentFoldersNotesAmounts.addAll(fetchedFoldersNotesAmounts);
+
+    notifyListeners();
   }
 
   // D
-  Future<void> deleteNoteFromFolder(int noteId, int folderId) async {
+  Future<void> deleteNoteFromFolder(int noteId) async {
     final Note? existingNote = await isar.notes.get(noteId);
-    final Folder? existingFolder = await isar.folders.get(folderId);
 
-    if (existingNote == null || existingFolder == null) return;
+    if (existingNote == null) throw Exception("Note not found, unable to delete from the folder");
 
-    existingFolder.notesIds.remove(noteId);
+    existingNote.folderId = null;
     
-    await isar.writeTxn(() => isar.folders.put(existingFolder));
+    await isar.writeTxn(() => isar.notes.put(existingNote));
 
-    await fetchFolders();
+    await fetchNotes();
+    await fetchFolderNotesAmounts();
   }
 }
