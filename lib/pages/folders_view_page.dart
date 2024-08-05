@@ -129,14 +129,14 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
                 height: 60,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade900,
+                  color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.folder,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.inversePrimary
                     ),
 
                     // Folder name
@@ -145,9 +145,9 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           currentFolders[index].name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.inversePrimary,
+                            fontSize: 20
                           ),
                           textAlign: TextAlign.start,
                           maxLines: 1,
@@ -169,31 +169,31 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
                             visible: currentFolders[index].isPinned,
                             child: Transform.rotate(
                               angle: pi / 4,
-                              child: const Icon(
-                                color: Colors.white,
+                              child: Icon(
+                                color: Theme.of(context).colorScheme.inversePrimary,
                                 Icons.push_pin_outlined,
-                                size: 14,
+                                size: 14
                               )
                             )
                           ),
                           
                             Row(
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(left: 8, right: 6),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8, right: 6),
                                   child: Icon(
                                     Icons.note_outlined,
-                                    color: Colors.white,
-                                    size: 14,
+                                    color: Theme.of(context).colorScheme.inversePrimary,
+                                    size: 14
                                   )
                                 ),
                     
                                 // Amount of notes inside
                                 Text(
                                   currentFoldersNotesAmounts[currentFolders[index].id].toString(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.inversePrimary,
+                                    fontSize: 12
                                   ),
                                   textAlign: TextAlign.center
                                 )
@@ -206,8 +206,8 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
                         Expanded(
                           child: Text(
                             DateUtil.getCurrentDate(currentFolders[index].initDate),
-                            style: const TextStyle(
-                              color: Colors.white54,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.tertiary,
                               fontSize: 12
                             )
                           )

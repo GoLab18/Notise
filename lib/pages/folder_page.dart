@@ -112,7 +112,7 @@ class _FolderPageState extends State<FolderPage> {
     Map<int, int> currentFoldersNotesAmounts = db.currentFoldersNotesAmounts;
 
     return Scaffold(
-      backgroundColor: Colors.blue.shade800,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: MainAppBar(
         showBackButton: true,
         isInEditState: isInEditState,
@@ -136,14 +136,14 @@ class _FolderPageState extends State<FolderPage> {
                   keyboardType: TextInputType.multiline,
                   controller: _folderNameController,
                   focusNode: _folderNameFocusNode,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.inversePrimary,
                     overflow: TextOverflow.ellipsis
                   ),
-                  cursorColor: Colors.blue,
-                  backgroundCursorColor: Colors.grey
+                  cursorColor: Theme.of(context).colorScheme.inversePrimary,
+                  backgroundCursorColor: Theme.of(context).colorScheme.tertiary
                 ),
                 
                 Row(
@@ -152,18 +152,18 @@ class _FolderPageState extends State<FolderPage> {
                     // Init date
                     Text(
                       DateUtil.getCurrentDate(widget.folder.initDate),
-                      style: const TextStyle(
-                        color: Colors.white54,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.tertiary,
                         fontSize: 14
                       )
                     ),
 
                     // Notes
-                    const Padding(
-                      padding: EdgeInsets.only(left: 14, right: 6),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 14, right: 6),
                       child: Icon(
                         Icons.note_outlined,
-                        color: Colors.white54,
+                        color: Theme.of(context).colorScheme.tertiary,
                         size: 16,
                       )
                     ),
@@ -171,8 +171,8 @@ class _FolderPageState extends State<FolderPage> {
                     // Amount of notes inside
                     Text(
                       currentFoldersNotesAmounts[widget.folder.id].toString(),
-                      style: const TextStyle(
-                        color: Colors.white54,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.tertiary,
                         fontSize: 14
                       ),
                       textAlign: TextAlign.center
@@ -183,8 +183,8 @@ class _FolderPageState extends State<FolderPage> {
             ),
           ),
 
-          const Divider(
-            color: Colors.white,
+          Divider(
+            color: Theme.of(context).colorScheme.inversePrimary,
             thickness: 2,
             height: 0
           ),

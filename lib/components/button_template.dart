@@ -57,7 +57,7 @@ class _ButtonTemplateState extends State<ButtonTemplate> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.secondary,
                 borderRadius: BorderRadius.circular(8)
               ),
               child: Padding(
@@ -65,15 +65,15 @@ class _ButtonTemplateState extends State<ButtonTemplate> {
                 child: Text(
                   widget.text,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.inversePrimary
                   )
-                ),
+                )
               )
-            ),
-          ),
-        ),
-      ),
+            )
+          )
+        )
+      )
     );
   }
 }

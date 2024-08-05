@@ -44,7 +44,7 @@ class _MainAppBarState extends State<MainAppBar> {
     return AppBar(
       leading: widget.showBackButton
         ? BackButton(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.inversePrimary,
           onPressed: () {
             Navigator.pop(context);
           },
@@ -54,8 +54,8 @@ class _MainAppBarState extends State<MainAppBar> {
           widget.title ?? "" 
         ),
       centerTitle: true,
-      backgroundColor: Colors.blue.shade900,
-      foregroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      foregroundColor: Theme.of(context).colorScheme.inversePrimary,
       elevation: 4.0,
       actions: [
 
@@ -63,9 +63,9 @@ class _MainAppBarState extends State<MainAppBar> {
         (context.findAncestorWidgetOfExactType<NoteDetailsPage>() == null && context.findAncestorWidgetOfExactType<FolderPage>() == null)
         ? IconButton(
           onPressed: () => openSettings(),
-          icon: const Icon(
+          icon: Icon(
             Icons.settings,
-            color: Colors.white
+            color: Theme.of(context).colorScheme.inversePrimary
           )
         )
 
@@ -74,9 +74,9 @@ class _MainAppBarState extends State<MainAppBar> {
           onPressed: () {
             widget.onEditStateFinished!();
           },
-          icon: const Icon(
+          icon: Icon(
             Icons.check,
-            color: Colors.white
+            color: Theme.of(context).colorScheme.inversePrimary
           )
         )
         : PopupMenuButton(
@@ -86,14 +86,14 @@ class _MainAppBarState extends State<MainAppBar> {
               Navigator.pop(context);
             }
           },
-          color: Colors.black,
+          color: Theme.of(context).colorScheme.secondary,
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: "Delete",
               child: Text(
                 "Delete",
                 style: TextStyle(
-                  color: Colors.white
+                  color: Theme.of(context).colorScheme.inversePrimary
                 )
               )
             )

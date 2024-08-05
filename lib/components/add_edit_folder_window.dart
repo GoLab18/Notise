@@ -22,7 +22,7 @@ class AddEditFolderWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.blue.shade900,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       content: SizedBox(
         width: 200,
         height: 160,
@@ -40,10 +40,10 @@ class AddEditFolderWindow extends StatelessWidget {
                   Text(
                     actionTitle,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.inversePrimary,
                       fontSize: 20
-                    ),
+                    )
                   ),
         
                   // Folder name
@@ -51,27 +51,27 @@ class AddEditFolderWindow extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 4, bottom: 6),
                     child: TextField(
                       controller: folderNameController,
-                      style: const TextStyle(
-                        color: Colors.white
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.inversePrimary
                       ),
-                      decoration: const InputDecoration(
-                        fillColor: Color.fromARGB(255, 9, 61, 140),
+                      decoration: InputDecoration(
+                        fillColor: Theme.of(context).colorScheme.surface,
                         filled: true,
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
                           borderSide: BorderSide(
-                              color: Colors.white
+                              color: Theme.of(context).colorScheme.inversePrimary
                             )
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
                           borderSide: BorderSide(
-                              color: Colors.white
+                              color: Theme.of(context).colorScheme.inversePrimary
                             )
                         ),
                         hintText: "Name..",
                         hintStyle: TextStyle(
-                          color: Colors.white70
+                          color: Theme.of(context).colorScheme.tertiary
                         )
                       )
                     ),

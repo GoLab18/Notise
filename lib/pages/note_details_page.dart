@@ -77,7 +77,7 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade800,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: MainAppBar(
         showBackButton: true,
         isInEditState: isInEditState,
@@ -98,19 +98,19 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
               keyboardType: TextInputType.multiline,
               controller: _titleController,
               focusNode: _titleFocusNode,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24.0,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.inversePrimary,
                 overflow: TextOverflow.ellipsis
               ),
-              cursorColor: Colors.blue,
-              backgroundCursorColor: Colors.grey,
-            ),
+              cursorColor: Theme.of(context).colorScheme.inversePrimary,
+              backgroundCursorColor: Theme.of(context).colorScheme.tertiary
+            )
           ),
 
-          const Divider(
-            color: Colors.white,
+          Divider(
+            color: Theme.of(context).colorScheme.inversePrimary,
             thickness: 2,
             height: 0
           ),
@@ -123,13 +123,13 @@ class _NoteDetailsPageState extends State<NoteDetailsPage> {
                 keyboardType: TextInputType.multiline,
                 controller: _textController,
                 focusNode: _textFocusNode,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18.0,
-                  color: Colors.white70,
+                  color: Theme.of(context).colorScheme.tertiary,
                   overflow: TextOverflow.ellipsis
                 ),
-                cursorColor: Colors.blue,
-                backgroundCursorColor: Colors.grey,
+                cursorColor: Theme.of(context).colorScheme.inversePrimary,
+                backgroundCursorColor: Theme.of(context).colorScheme.tertiary,
                 maxLines: null
               ),
             ),

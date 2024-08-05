@@ -142,7 +142,7 @@ class _NotesViewPageState extends State<NotesViewPage> {
               duration: Duration(milliseconds: _durationsMs[index] ?? _durationDefault),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade900,
+                  color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(10)
                 ),
                 child: Column(
@@ -154,17 +154,16 @@ class _NotesViewPageState extends State<NotesViewPage> {
                       child: Text(
                         currentNotes[index].title,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          backgroundColor: Colors.blue.shade900
+                          color: Theme.of(context).colorScheme.inversePrimary,
+                          fontWeight: FontWeight.bold
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1
-                      ),
+                      )
                     ),
               
-                    const Divider(
-                      color: Colors.white,
+                    Divider(
+                      color: Theme.of(context).colorScheme.tertiary,
                       thickness: 2,
                       height: 0
                     ),
@@ -175,14 +174,14 @@ class _NotesViewPageState extends State<NotesViewPage> {
                         padding: const EdgeInsets.all(4),
                         child: Text(
                           currentNotes[index].text,
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.inversePrimary
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 4,
                           softWrap: true
-                        ),
-                      ),
+                        )
+                      )
                     ),
 
                     Padding(
@@ -194,8 +193,8 @@ class _NotesViewPageState extends State<NotesViewPage> {
                           // Date
                           Text(
                             DateUtil.getCurrentDate(currentNotes[index].initDate),
-                            style: const TextStyle(
-                              color: Colors.white54,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.tertiary,
                               fontSize: 12
                             )
                           ),
@@ -205,23 +204,23 @@ class _NotesViewPageState extends State<NotesViewPage> {
                             visible: currentNotes[index].isPinned,
                             child: Transform.rotate(
                               angle: pi / 4,
-                              child: const Icon(
-                                color: Colors.white,
+                              child: Icon(
+                                color: Theme.of(context).colorScheme.inversePrimary,
                                 Icons.push_pin_outlined,
-                                size: 14,
+                                size: 14
                               )
-                            ),
-                          ),
-                        ],
-                      ),
+                            )
+                          )
+                        ]
+                      )
                     )
                   ]
                 )
-              ),
-            ),
+              )
+            )
           );
         }
-      ),
+      )
     );
   }
 }

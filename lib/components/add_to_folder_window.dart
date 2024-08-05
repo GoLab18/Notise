@@ -49,7 +49,7 @@ class _AddToFolderWindowState extends State<AddToFolderWindow> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: const Color.fromARGB(255, 9, 61, 140),
+      backgroundColor: Theme.of(context).colorScheme.primary,
       content: Container(
         width: 200,
         height: 180,
@@ -61,13 +61,13 @@ class _AddToFolderWindowState extends State<AddToFolderWindow> {
           children: [
 
             // Action title
-            const Text(
+            Text(
               "Add to folder..",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.inversePrimary,
                 fontSize: 20
-              ),
+              )
             ),
 
             // Folders available
@@ -88,23 +88,23 @@ class _AddToFolderWindowState extends State<AddToFolderWindow> {
                       });
                     },
                     expandedInsets: EdgeInsets.zero,
-                    leadingIcon: const Icon(
+                    leadingIcon: Icon(
                       Icons.folder,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.inversePrimary,
                       size: 18,
                     ),
-                    trailingIcon: const Icon(
+                    trailingIcon: Icon(
                       Icons.arrow_drop_down,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.inversePrimary
                     ),
-                    selectedTrailingIcon: const Icon(
+                    selectedTrailingIcon: Icon(
                       Icons.arrow_drop_up,
-                      color: Colors.white
+                      color: Theme.of(context).colorScheme.inversePrimary
                     ),
-                    textStyle: const TextStyle(color: Colors.white),
-                    menuStyle: const MenuStyle(
-                      surfaceTintColor: WidgetStatePropertyAll(Color.fromARGB(255, 44, 4, 67)),
-                      backgroundColor: WidgetStatePropertyAll(Color.fromARGB(255, 9, 61, 140))
+                    textStyle: TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
+                    menuStyle: MenuStyle(
+                      surfaceTintColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.primary),
+                      backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.surface)
                     ),
                     dropdownMenuEntries: widget.currentFolders.map<DropdownMenuEntry<Folder>>((Folder folder) {
                       return DropdownMenuEntry<Folder>(
@@ -112,8 +112,8 @@ class _AddToFolderWindowState extends State<AddToFolderWindow> {
                         label: folder.name,
                         labelWidget: Text(
                           folder.name,
-                          style: const TextStyle(
-                            color: Colors.white
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.inversePrimary
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis
@@ -134,10 +134,10 @@ class _AddToFolderWindowState extends State<AddToFolderWindow> {
                           color: Colors.red.shade800
                         )
                       )
-                    ),
+                    )
                   )
-                ],
-              ),
+                ]
+              )
             ),
 
             // Buttons row

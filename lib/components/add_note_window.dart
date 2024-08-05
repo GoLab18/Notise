@@ -21,7 +21,7 @@ class AddNoteWindow extends StatelessWidget {
     final Size screenSize = MediaQuery.of(context).size;
 
     return AlertDialog(
-      backgroundColor: Colors.blue.shade900,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       content: ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: screenSize.height * 0.5,
@@ -38,11 +38,11 @@ class AddNoteWindow extends StatelessWidget {
                 children: [
                   
                   // Action title
-                  const Text(
+                  Text(
                     "New note",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.inversePrimary,
                       fontSize: 20
                     ),
                   ),
@@ -52,27 +52,27 @@ class AddNoteWindow extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 8, bottom: 6),
                     child: TextField(
                       controller: titleController,
-                      style: const TextStyle(
-                        color: Colors.white
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.inversePrimary
                       ),
-                      decoration: const InputDecoration(
-                        fillColor: Color.fromARGB(255, 9, 61, 140),
+                      decoration: InputDecoration(
+                        fillColor: Theme.of(context).colorScheme.surface,
                         filled: true,
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
                           borderSide: BorderSide(
-                              color: Colors.white
+                              color: Theme.of(context).colorScheme.inversePrimary
                             )
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          borderRadius: const BorderRadius.all(Radius.circular(8)),
                           borderSide: BorderSide(
-                              color: Colors.white
+                              color: Theme.of(context).colorScheme.inversePrimary
                             )
                         ),
                         hintText: "Title..",
                         hintStyle: TextStyle(
-                          color: Colors.white70
+                          color: Theme.of(context).colorScheme.tertiary
                         )
                       )
                     ),
@@ -87,21 +87,21 @@ class AddNoteWindow extends StatelessWidget {
                         maxLines: null,
                         expands: true,
                         keyboardType: TextInputType.multiline,
-                        style: const TextStyle(
-                          color: Colors.white
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.inversePrimary
                         ),
-                        decoration: const InputDecoration(
-                          fillColor: Color.fromARGB(255, 9, 61, 140),
+                        decoration: InputDecoration(
+                          fillColor: Theme.of(context).colorScheme.surface,
                           filled: true,
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            borderRadius: const BorderRadius.all(Radius.circular(8)),
                             borderSide: BorderSide(
-                              color: Colors.white
+                              color: Theme.of(context).colorScheme.inversePrimary
                             )
                           ),
                           hintText: "Note..",
                           hintStyle: TextStyle(
-                            color: Colors.white70
+                            color: Theme.of(context).colorScheme.tertiary
                           ),
                           alignLabelWithHint: true,
                           hintTextDirection: TextDirection.ltr,

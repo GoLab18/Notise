@@ -157,7 +157,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
     return PopScope(
       onPopInvoked: (didPop) => widget.onBottomSheetClosed(),
       child: BottomSheet(
-        backgroundColor: const Color.fromARGB(255, 34, 2, 52),
+        backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
         onClosing: () {},
         builder: (BuildContext context) {
           return Padding(
@@ -168,7 +168,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
       
                 // Pin
                 IconButton(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.tertiary,
                   icon: Transform.rotate(
                     angle: pinAngle,
                     child: const Icon(Icons.push_pin)
@@ -181,7 +181,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
       
                 // Folder
                 if (widget.note != null) IconButton(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.tertiary,
                   icon: const Icon(Icons.folder),
                   onPressed: () {
                     addToFolder(currentFolders);
@@ -190,7 +190,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
       
                 // Edit
                 if (widget.folder != null) IconButton(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.tertiary,
                   icon: const Icon(Icons.edit),
                   onPressed: () {
                     editFolder();
@@ -199,7 +199,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
 
                 // Discard from the current folder
                 if (widget.note != null && widget.allowNoteFromFolderDeletion == true) IconButton(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.tertiary,
                   icon: const Icon(
                     Icons.folder_off
                   ),
@@ -212,7 +212,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
       
                 // Delete
                 IconButton(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.tertiary,
                   icon: const Icon(Icons.delete),
                   onPressed: () {
                     deleteItem();
@@ -222,7 +222,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
             )
           );
         }
-      ),
+      )
     );
   }
 }

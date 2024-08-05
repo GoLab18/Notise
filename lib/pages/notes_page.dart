@@ -143,7 +143,7 @@ class _NotesPageState extends State<NotesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 44, 4, 67),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: const MainAppBar(
         title: "Notes"
       ),
@@ -157,9 +157,9 @@ class _NotesPageState extends State<NotesPage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: bottomBarNavigation,
-        backgroundColor: Colors.blue.shade900,
-        unselectedItemColor: Colors.white,
-        selectedItemColor: const Color.fromARGB(255, 44, 4, 67),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        unselectedItemColor: Theme.of(context).colorScheme.primary,
+        selectedItemColor: Theme.of(context).colorScheme.inversePrimary,
         items: const [
 
           //Home
@@ -178,7 +178,7 @@ class _NotesPageState extends State<NotesPage> {
             label: "Folders"
           )
         ]
-        )
+      )
     );
   }
 }
