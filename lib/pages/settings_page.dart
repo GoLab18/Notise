@@ -13,28 +13,30 @@ class SettingsPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.secondary
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-        
+                
                 // Dark mode text
                 Text(
                   "Dark mode",
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.inversePrimary
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                    fontSize: 16
                   )
                 ),
 
                 // Dark mode switch
                 Switch(
+                  activeColor: Theme.of(context).colorScheme.tertiary,
                   value: Provider.of<ThemeProvider>(
                     context,
                     listen: false
                   ).isDarkMode,
-                  onChanged: (bool isChanged) =>
+                  onChanged: (bool value) =>
                   Provider.of<ThemeProvider>(
                     context,
                     listen: false
@@ -43,7 +45,7 @@ class SettingsPage extends StatelessWidget {
               ]
             )
           ]
-        ),
+        )
       )
     );
   }
