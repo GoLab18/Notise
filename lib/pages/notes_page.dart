@@ -24,8 +24,6 @@ class _NotesPageState extends State<NotesPage> {
   // For bottom nav bar
   late int _currentIndex;
 
-  late List pages;
-
   // For disabling UI parts on bottom sheet opening
   late bool _isBottomSheetOpen;
 
@@ -42,33 +40,6 @@ class _NotesPageState extends State<NotesPage> {
     _currentIndex = 0;
 
     _isBottomSheetOpen = false;
-
-    pages = [
-      NotesViewPage(
-        onBottomSheetOpened: () {
-          setState(() {
-            _isBottomSheetOpen = true;
-          });
-        },
-        onBottomSheetClosed: () {
-          setState(() {
-            _isBottomSheetOpen = false;
-          });
-        }
-      ),
-      FoldersViewPage(
-        onBottomSheetOpened: () {
-          setState(() {
-            _isBottomSheetOpen = true;
-          });
-        },
-        onBottomSheetClosed: () {
-          setState(() {
-            _isBottomSheetOpen = false;
-          });
-        }
-      )
-    ];
 
     readItems();
   }
@@ -153,7 +124,30 @@ class _NotesPageState extends State<NotesPage> {
           onPressed: _currentIndex == 0 ? createNote : createFolder
         ),
       ),
-      body: pages[_currentIndex],
+      body: _currentIndex == 0 ? NotesViewPage(
+        onBottomSheetOpened: () {
+          setState(() {
+            _isBottomSheetOpen = true;
+          });
+        },
+        onBottomSheetClosed: () {
+          setState(() {
+            _isBottomSheetOpen = false;
+          });
+        }
+      )
+      : FoldersViewPage(
+        onBottomSheetOpened: () {
+          setState(() {
+            _isBottomSheetOpen = true;
+          });
+        },
+        onBottomSheetClosed: () {
+          setState(() {
+            _isBottomSheetOpen = false;
+          });
+        }
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: bottomBarNavigation,
