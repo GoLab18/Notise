@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotesDatabase.initialization();
+  await ThemeProvider.loadThemePreference();
 
   runApp(
     MultiProvider(
