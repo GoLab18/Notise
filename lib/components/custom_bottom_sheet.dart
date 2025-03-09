@@ -155,7 +155,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
     List<Folder> currentFolders = db.currentFolders;
 
     return PopScope(
-      onPopInvoked: (didPop) => widget.onBottomSheetClosed(),
+      onPopInvokedWithResult: (didPop, result) => widget.onBottomSheetClosed(),
       child: BottomSheet(
         backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
         onClosing: () {},
