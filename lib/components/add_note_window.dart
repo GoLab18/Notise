@@ -24,11 +24,9 @@ class AddNoteWindow extends StatelessWidget {
       child: SingleChildScrollView(
         child: AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary,
-          content: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: screenSize.height * 0.5,
-              maxWidth: screenSize.width * 0.8
-            ),
+          content: SizedBox(
+            height: screenSize.height * 0.5,
+            width: screenSize.width * 0.8,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
