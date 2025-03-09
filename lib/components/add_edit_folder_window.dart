@@ -74,10 +74,10 @@ class AddEditFolderWindow extends StatelessWidget {
                           color: Theme.of(context).colorScheme.tertiary
                         )
                       )
-                    ),
+                    )
                   )
                 ]
-              ),
+              )
             ),
         
             // Buttons row
@@ -95,7 +95,7 @@ class AddEditFolderWindow extends StatelessWidget {
               ]
             )
           ]
-        ),
+        )
       )
     );
   }
