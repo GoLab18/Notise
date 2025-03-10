@@ -145,15 +145,16 @@ class _AddToFolderWindowState extends State<AddToFolderWindow> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ButtonTemplate(
-                  text: "Add",
-                  onPressed: addOrShowError
-                ),
-                ButtonTemplate(
                   text: "Cancel",
                   onPressed: () {
-                  Navigator.pop(context);
-                  if (widget.popPreviusWindow != null) widget.popPreviusWindow!();
-                })
+                    Navigator.pop(context);
+                    if (widget.popPreviusWindow != null) widget.popPreviusWindow!();
+                  }
+                ),
+                ButtonTemplate(
+                  text: "Add",
+                  onPressed: addOrShowError
+                )
               ]
             )
           ]

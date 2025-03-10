@@ -52,6 +52,7 @@ class AddNoteWindow extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 8, bottom: 6),
                         child: TextField(
                           controller: titleController,
+                          cursorColor: Theme.of(context).colorScheme.inversePrimary,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.inversePrimary
                           ),
@@ -87,6 +88,7 @@ class AddNoteWindow extends StatelessWidget {
                             maxLines: null,
                             expands: true,
                             keyboardType: TextInputType.multiline,
+                            cursorColor: Theme.of(context).colorScheme.inversePrimary,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.inversePrimary
                             ),
@@ -118,8 +120,8 @@ class AddNoteWindow extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ButtonTemplate(text: "Create", onPressed: onAddPressed),
-                    ButtonTemplate(text: "Cancel", onPressed: onCancelPressed)
+                    ButtonTemplate(text: "Cancel", onPressed: onCancelPressed),
+                    ButtonTemplate(text: "Create", onPressed: onAddPressed)
                   ]
                 )
               ]

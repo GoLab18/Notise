@@ -51,6 +51,7 @@ class AddEditFolderWindow extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 4, bottom: 6),
                     child: TextField(
                       controller: folderNameController,
+                      cursorColor: Theme.of(context).colorScheme.inversePrimary,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.inversePrimary
                       ),
@@ -85,12 +86,12 @@ class AddEditFolderWindow extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ButtonTemplate(
-                  text: sumbitButtonName,
-                  onPressed: onAddPressed
-                ),
-                ButtonTemplate(
                   text: "Cancel",
                   onPressed: onCancelPressed
+                ),
+                ButtonTemplate(
+                  text: sumbitButtonName,
+                  onPressed: onAddPressed
                 )
               ]
             )
