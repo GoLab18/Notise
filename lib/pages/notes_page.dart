@@ -124,29 +124,23 @@ class _NotesPageState extends State<NotesPage> {
           onPressed: _currentIndex == 0 ? createNote : createFolder
         ),
       ),
-      body: _currentIndex == 0 ? NotesViewPage(
-        onBottomSheetOpened: () {
-          setState(() {
-            _isBottomSheetOpen = true;
-          });
-        },
-        onBottomSheetClosed: () {
-          setState(() {
-            _isBottomSheetOpen = false;
-          });
-        }
-      )
-      : FoldersViewPage(
-        onBottomSheetOpened: () {
-          setState(() {
-            _isBottomSheetOpen = true;
-          });
-        },
-        onBottomSheetClosed: () {
-          setState(() {
-            _isBottomSheetOpen = false;
-          });
-        }
+      body: SizedBox.expand(
+        child: _currentIndex == 0 ? NotesViewPage(
+          onBottomSheetOpened: () {
+            setState(() { _isBottomSheetOpen = true; });
+          },
+          onBottomSheetClosed: () {
+            setState(() { _isBottomSheetOpen = false; });
+          }
+        )
+        : FoldersViewPage(
+          onBottomSheetOpened: () {
+            setState(() { _isBottomSheetOpen = true; });
+          },
+          onBottomSheetClosed: () {
+            setState(() { _isBottomSheetOpen = false; });
+          }
+        )
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
