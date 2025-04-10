@@ -8,6 +8,9 @@ import 'package:notise/data/notes_database.dart';
 import 'package:notise/pages/folders_view_page.dart';
 import 'package:provider/provider.dart';
 
+import '../components/bottom_nav_bar_painter.dart';
+import '../components/bottom_nav_tile.dart';
+
 class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
 
@@ -91,11 +94,11 @@ class _NotesPageState extends State<NotesPage> {
         sumbitButtonName: "Create",
         folderNameController: folderNameController,
         onAddPressed: () {
-            context.read<NotesDatabase>().addFolder(folderNameController.text);
+          context.read<NotesDatabase>().addFolder(folderNameController.text);
 
-            folderNameController.clear();
+          folderNameController.clear();
 
-            Navigator.pop(context);
+          Navigator.pop(context);
         },
         onCancelPressed: () {
           folderNameController.clear();
@@ -142,30 +145,77 @@ class _NotesPageState extends State<NotesPage> {
           }
         )
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: bottomBarNavigation,
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        unselectedItemColor: Theme.of(context).colorScheme.primary,
-        selectedItemColor: Theme.of(context).colorScheme.inversePrimary,
-        items: const [
-
-          //Home
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home
+      bottomNavigationBar: SizedBox(
+        height: 80,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: BottomNavBarPainter(
+                  color: Theme.of(context).colorScheme.secondary,
+                )
+              )
             ),
-            label: "Home"
-          ),
 
-          // Folders
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.folder
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  BottomNavTile(
+                    icon: Icons.home,
+                    label: "Home",
+                    isSelected: _currentIndex == 0,
+                    onTap: () {
+                      bottomBarNavigation(0);
+                    }
+                  ),
+              
+                  const SizedBox(width: 64),
+              
+                  BottomNavTile(
+                    icon: Icons.folder,
+                    label: "Folders",
+                    isSelected: _currentIndex == 1,
+                    onTap: () {
+                      bottomBarNavigation(1);
+                    }
+                  )
+                ]
+              ),
             ),
-            label: "Folders"
-          )
-        ]
+
+            Positioned(
+              bottom: 10,
+              child: SizedBox.square(
+                dimension: 64,
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        blurRadius: 8
+                      )
+                    ],
+                    shape: BoxShape.circle
+                  ),
+                  child: IconButton.filled(
+                    iconSize: 30,
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                    onPressed: () {
+                      // TODO search
+                    },
+                    icon: Icon(
+                      Icons.search
+                    )
+                  )
+                )
+              )
+            )
+          ]
+        )
       )
     );
   }
