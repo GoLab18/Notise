@@ -10,9 +10,12 @@ class NotesDatabase extends ChangeNotifier {
   final List<Note> currentNotes = [];
   final List<Folder> currentFolders = [];
   
-  Map<int, int> currentFoldersNotesAmounts = {};
-  
+  List<Note> currNotesSearch = [];
+  List<Folder> currFoldersSearch = [];
 
+  int searchOffset = 0;
+  bool isEverythingFound = false;
+  
   static Future<void> initialization() async {
     final dir = await getApplicationDocumentsDirectory();
     isar = await Isar.open(
@@ -20,7 +23,6 @@ class NotesDatabase extends ChangeNotifier {
       directory: dir.path
     );
   }
-
 
   // Notes
 
@@ -34,8 +36,9 @@ class NotesDatabase extends ChangeNotifier {
 
     await isar.writeTxn(() => isar.notes.put(newNote));
 
+    if (folderId != null) await updateFolderNotesCount(folderId, 1);
+    
     await fetchNotes();
-    if (folderId != null) await fetchFolderNotesAmounts();
   }
 
   // R
@@ -67,7 +70,7 @@ class NotesDatabase extends ChangeNotifier {
     await isar.writeTxn(() => isar.notes.delete(note.id));
 
     await fetchNotes();
-    if (note.folderId != null) await fetchFolderNotesAmounts();
+    if (note.folderId != null) await updateFolderNotesCount(note.folderId!, -1);
   }
 
   Future<void> changeNotePinStatus(int id) async {
@@ -93,7 +96,6 @@ class NotesDatabase extends ChangeNotifier {
     await isar.writeTxn(() => isar.folders.put(newFolder));
 
     await fetchFolders();
-    await fetchFolderNotesAmounts();
   }
 
   // R
@@ -119,6 +121,16 @@ class NotesDatabase extends ChangeNotifier {
     await fetchFolders();
   }
 
+  Future<void> updateFolderNotesCount(int folderId, int incrementValue) async {
+    Folder folder = await isar.folders.get(folderId) as Folder;
+    
+    folder.notesCount += incrementValue;
+
+    await isar.writeTxn(() => isar.folders.put(folder));
+
+    await fetchFolders();
+  }
+
   // D
   Future<void> deleteFolder(int folderId) async {
     List<Note> folderNotes = await isar.notes.filter().folderIdEqualTo(folderId).findAll();
@@ -137,7 +149,6 @@ class NotesDatabase extends ChangeNotifier {
     await isar.writeTxn(() => isar.folders.delete(folderId));
 
     await fetchFolders();
-    await fetchFolderNotesAmounts();
   }
 
   Future<void> changeFolderPinStatus(int id) async {
@@ -170,68 +181,20 @@ class NotesDatabase extends ChangeNotifier {
     if (folderId != null) folder = await isar.folders.get(folderId);
 
     // Add a new folder if folderId not specified
-    if (folder == null) {
-      folder = Folder()..name = newFolderName!..initDate = DateTime.now();
-
-      await isar.writeTxn(() => isar.folders.put(folder!));
-
-      await fetchFolders();
-    }
-
-    existingNote.folderId = folder.id;
+    folder ??= Folder()
+      ..name = newFolderName!
+      ..initDate = DateTime.now()
+      ..notesCount = 1;
     
-    await isar.writeTxn(() => isar.notes.put(existingNote));
+    existingNote.folderId = folder.id;
+
+    await isar.writeTxn(() async {
+      await isar.notes.put(existingNote);
+      await isar.folders.put(folder!);
+    });
 
     await fetchNotes();
-    await fetchFolderNotesAmounts();
-  }
-
-  // R
-  Future<void> fetchFolderNotesAmounts() async {
-    List<Note> fetchedFoldersNotes = await isar.notes.filter()
-      .folderIdIsNotNull().sortByFolderId().findAll();
-
-    List<Folder> fetchedFolders = await isar.folders.where().
-      sortByIsPinnedDesc().thenByInitDateDesc().findAll();
-
-    Map<int, int> fetchedFoldersNotesAmounts = {};
-
-    // Init the map of existing folders with default amounts = 0
-    for (final Folder folder in fetchedFolders) {
-      fetchedFoldersNotesAmounts[folder.id] = 0;
-    }
-
-    int? currentFolderId;
-    int currentCount = 0;
-
-    // Counting the notes inside all folders
-    for (final Note note in fetchedFoldersNotes) {
-      if (note.folderId != currentFolderId) {
-        
-        // Store if folderId changed
-        if (currentFolderId != null) {
-          fetchedFoldersNotesAmounts[currentFolderId] = currentCount;
-        }
-
-        fetchedFoldersNotesAmounts[note.folderId!] = 1;
-
-        currentFolderId = note.folderId;
-        currentCount = 1;
-      } else {
-        // Increment if folderId stays the same
-        currentCount++;
-      }
-    }
-
-    // Update the last folder's count
-    if (currentFolderId != null) {
-      fetchedFoldersNotesAmounts[currentFolderId] = currentCount;
-    }
-
-    currentFoldersNotesAmounts.clear();
-    currentFoldersNotesAmounts.addAll(fetchedFoldersNotesAmounts);
-
-    notifyListeners();
+    await fetchFolders();
   }
 
   // D
@@ -240,11 +203,84 @@ class NotesDatabase extends ChangeNotifier {
 
     if (existingNote == null) throw Exception("Note not found, unable to delete from the folder");
 
+    await updateFolderNotesCount(existingNote.folderId!, -1);
+
     existingNote.folderId = null;
     
     await isar.writeTxn(() => isar.notes.put(existingNote));
 
     await fetchNotes();
-    await fetchFolderNotesAmounts();
+  }
+
+  Stream<Folder?> fetchFolderStream(int folderId) {
+    return isar.folders.watchObject(folderId);
+  }
+
+  /// Full-text searches notes by [query] with prefix searching.
+  /// When [isInitial] equals false, method handles pagination starting from it's value.
+  Future<void> searchNotes(String query, [bool isInitial = true, int limit = 18]) async {
+    if (isInitial) {
+      isEverythingFound = false;
+      searchOffset = 0;
+    }
+
+    if (isEverythingFound) return;
+
+    if (query.isEmpty) {
+      currNotesSearch = [];
+      notifyListeners();
+      return;
+    }
+
+    List<Note> noteResults = await isar.notes
+      .filter()
+      .titleStartsWith(query, caseSensitive: false)
+      .sortByTitle()
+      .thenByInitDate()
+      .thenByIsPinnedDesc()
+      .offset(searchOffset)
+      .limit(limit)
+      .findAll();
+
+    if (noteResults.length < limit) isEverythingFound = true;
+
+    (isInitial) ? currNotesSearch = noteResults : currNotesSearch.addAll(noteResults);
+
+    searchOffset += limit;
+
+    notifyListeners();
+  }
+
+  /// Full-text searches folders by [query] with prefix searching.
+  /// When [isInitial] equals false, method handles pagination starting from it's value.
+  Future<void> searchFolders(String query, [bool isInitial = true, int limit = 18]) async {
+    if (isInitial) searchOffset = 0;
+
+    if (query.isEmpty) {
+      currFoldersSearch = [];
+      notifyListeners();
+      return;
+    }
+
+    List<Folder> folderResults = await isar.folders
+      .filter()
+      .nameStartsWith(query, caseSensitive: false)
+      .sortByName()
+      .thenByInitDate()
+      .thenByIsPinnedDesc()
+      .offset(searchOffset)
+      .limit(limit)
+      .findAll();
+
+    (isInitial) ? currFoldersSearch = folderResults : currFoldersSearch.addAll(folderResults);
+
+    searchOffset += limit;
+
+    notifyListeners();
+  }
+
+  Future<void> clearSearchResults(bool isNote) async {
+    (isNote) ? currNotesSearch.clear() : currFoldersSearch.clear();
+    searchOffset = 0;
   }
 }
