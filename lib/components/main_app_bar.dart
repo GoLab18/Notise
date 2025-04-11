@@ -50,9 +50,7 @@ class _MainAppBarState extends State<MainAppBar> {
           },
         )
         : null,
-      title: Text(
-          widget.title ?? "" 
-        ),
+      title: Text(widget.title ?? ""),
       centerTitle: true,
       backgroundColor: Theme.of(context).colorScheme.secondary,
       foregroundColor: Theme.of(context).colorScheme.inversePrimary,

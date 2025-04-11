@@ -108,7 +108,6 @@ class _FolderPageState extends State<FolderPage> {
   @override
   Widget build(BuildContext context) {
     final NotesDatabase db = context.watch<NotesDatabase>();
-
     Map<int, int> currentFoldersNotesAmounts = db.currentFoldersNotesAmounts;
 
     return Scaffold(
@@ -121,11 +120,10 @@ class _FolderPageState extends State<FolderPage> {
           "Delete": () {
             deleteFolder(widget.folder.id);
           }
-        },
+        }
       ),
       body: Column(
         children: [
-
           // Note title
           Padding(
             padding: const EdgeInsets.all(10),
@@ -179,8 +177,8 @@ class _FolderPageState extends State<FolderPage> {
                     )
                   ]
                 )
-              ],
-            ),
+              ]
+            )
           ),
 
           Divider(
@@ -213,7 +211,7 @@ class _FolderPageState extends State<FolderPage> {
         child: CustomFloatingActionButton(
           onPressed: createNote
         )
-      ),
+      )
     );
   }
 }
