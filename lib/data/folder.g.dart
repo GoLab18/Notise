@@ -31,6 +31,16 @@ const FolderSchema = CollectionSchema(
       id: 2,
       name: r'name',
       type: IsarType.string,
+    ),
+    r'nameWords': PropertySchema(
+      id: 3,
+      name: r'nameWords',
+      type: IsarType.stringList,
+    ),
+    r'notesCount': PropertySchema(
+      id: 4,
+      name: r'notesCount',
+      type: IsarType.long,
     )
   },
   estimateSize: _folderEstimateSize,
@@ -38,7 +48,21 @@ const FolderSchema = CollectionSchema(
   deserialize: _folderDeserialize,
   deserializeProp: _folderDeserializeProp,
   idName: r'id',
-  indexes: {},
+  indexes: {
+    r'nameWords': IndexSchema(
+      id: 8960882405442787957,
+      name: r'nameWords',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'nameWords',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    )
+  },
   links: {},
   embeddedSchemas: {},
   getId: _folderGetId,
@@ -54,6 +78,13 @@ int _folderEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.nameWords.length * 3;
+  {
+    for (var i = 0; i < object.nameWords.length; i++) {
+      final value = object.nameWords[i];
+      bytesCount += value.length * 3;
+    }
+  }
   return bytesCount;
 }
 
@@ -66,6 +97,8 @@ void _folderSerialize(
   writer.writeDateTime(offsets[0], object.initDate);
   writer.writeBool(offsets[1], object.isPinned);
   writer.writeString(offsets[2], object.name);
+  writer.writeStringList(offsets[3], object.nameWords);
+  writer.writeLong(offsets[4], object.notesCount);
 }
 
 Folder _folderDeserialize(
@@ -79,6 +112,7 @@ Folder _folderDeserialize(
   object.initDate = reader.readDateTime(offsets[0]);
   object.isPinned = reader.readBool(offsets[1]);
   object.name = reader.readString(offsets[2]);
+  object.notesCount = reader.readLong(offsets[4]);
   return object;
 }
 
@@ -95,6 +129,10 @@ P _folderDeserializeProp<P>(
       return (reader.readBool(offset)) as P;
     case 2:
       return (reader.readString(offset)) as P;
+    case 3:
+      return (reader.readStringList(offset) ?? []) as P;
+    case 4:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -116,6 +154,14 @@ extension FolderQueryWhereSort on QueryBuilder<Folder, Folder, QWhere> {
   QueryBuilder<Folder, Folder, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterWhere> anyNameWordsElement() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'nameWords'),
+      );
     });
   }
 }
@@ -183,6 +229,142 @@ extension FolderQueryWhere on QueryBuilder<Folder, Folder, QWhereClause> {
         upper: upperId,
         includeUpper: includeUpper,
       ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterWhereClause> nameWordsElementEqualTo(
+      String nameWordsElement) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'nameWords',
+        value: [nameWordsElement],
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterWhereClause> nameWordsElementNotEqualTo(
+      String nameWordsElement) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nameWords',
+              lower: [],
+              upper: [nameWordsElement],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nameWords',
+              lower: [nameWordsElement],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nameWords',
+              lower: [nameWordsElement],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'nameWords',
+              lower: [],
+              upper: [nameWordsElement],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterWhereClause> nameWordsElementGreaterThan(
+    String nameWordsElement, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'nameWords',
+        lower: [nameWordsElement],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterWhereClause> nameWordsElementLessThan(
+    String nameWordsElement, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'nameWords',
+        lower: [],
+        upper: [nameWordsElement],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterWhereClause> nameWordsElementBetween(
+    String lowerNameWordsElement,
+    String upperNameWordsElement, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'nameWords',
+        lower: [lowerNameWordsElement],
+        includeLower: includeLower,
+        upper: [upperNameWordsElement],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterWhereClause> nameWordsElementStartsWith(
+      String NameWordsElementPrefix) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'nameWords',
+        lower: [NameWordsElementPrefix],
+        upper: ['$NameWordsElementPrefix\u{FFFFF}'],
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterWhereClause> nameWordsElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'nameWords',
+        value: [''],
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterWhereClause> nameWordsElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.lessThan(
+              indexName: r'nameWords',
+              upper: [''],
+            ))
+            .addWhereClause(IndexWhereClause.greaterThan(
+              indexName: r'nameWords',
+              lower: [''],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.greaterThan(
+              indexName: r'nameWords',
+              lower: [''],
+            ))
+            .addWhereClause(IndexWhereClause.lessThan(
+              indexName: r'nameWords',
+              upper: [''],
+            ));
+      }
     });
   }
 }
@@ -431,6 +613,278 @@ extension FolderQueryFilter on QueryBuilder<Folder, Folder, QFilterCondition> {
       ));
     });
   }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'nameWords',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition>
+      nameWordsElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'nameWords',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'nameWords',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'nameWords',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition>
+      nameWordsElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'nameWords',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'nameWords',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsElementContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'nameWords',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsElementMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'nameWords',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition>
+      nameWordsElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'nameWords',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition>
+      nameWordsElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'nameWords',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsLengthEqualTo(
+      int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'nameWords',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'nameWords',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'nameWords',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'nameWords',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition>
+      nameWordsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'nameWords',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> nameWordsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'nameWords',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesCountEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'notesCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesCountGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'notesCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesCountLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'notesCount',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterFilterCondition> notesCountBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'notesCount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension FolderQueryObject on QueryBuilder<Folder, Folder, QFilterCondition> {}
@@ -471,6 +925,18 @@ extension FolderQuerySortBy on QueryBuilder<Folder, Folder, QSortBy> {
   QueryBuilder<Folder, Folder, QAfterSortBy> sortByNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> sortByNotesCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notesCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> sortByNotesCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notesCount', Sort.desc);
     });
   }
 }
@@ -523,6 +989,18 @@ extension FolderQuerySortThenBy on QueryBuilder<Folder, Folder, QSortThenBy> {
       return query.addSortBy(r'name', Sort.desc);
     });
   }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> thenByNotesCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notesCount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QAfterSortBy> thenByNotesCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notesCount', Sort.desc);
+    });
+  }
 }
 
 extension FolderQueryWhereDistinct on QueryBuilder<Folder, Folder, QDistinct> {
@@ -542,6 +1020,18 @@ extension FolderQueryWhereDistinct on QueryBuilder<Folder, Folder, QDistinct> {
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QDistinct> distinctByNameWords() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'nameWords');
+    });
+  }
+
+  QueryBuilder<Folder, Folder, QDistinct> distinctByNotesCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'notesCount');
     });
   }
 }
@@ -568,6 +1058,18 @@ extension FolderQueryProperty on QueryBuilder<Folder, Folder, QQueryProperty> {
   QueryBuilder<Folder, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
+    });
+  }
+
+  QueryBuilder<Folder, List<String>, QQueryOperations> nameWordsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'nameWords');
+    });
+  }
+
+  QueryBuilder<Folder, int, QQueryOperations> notesCountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'notesCount');
     });
   }
 }
