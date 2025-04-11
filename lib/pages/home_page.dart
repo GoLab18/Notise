@@ -45,7 +45,7 @@ class _NotesPageState extends State<HomePage> with TickerProviderStateMixin {
 
     folderNameController = TextEditingController();
 
-    searchAnimController = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    searchAnimController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     searchAnim = CurvedAnimation(parent: searchAnimController, curve: Curves.fastEaseInToSlowEaseOut);
 
     searchAnim.addStatusListener((status) {
@@ -144,13 +144,14 @@ class _NotesPageState extends State<HomePage> with TickerProviderStateMixin {
 
   Scaffold buildMainScaffold() {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).colorScheme.surface,
       extendBody: true,
       appBar: const MainAppBar(
         title: "Notise"
       ),
       floatingActionButton: Visibility(
-        visible: !isBottomSheetOpen,
+        visible: !isBottomSheetOpen && !isSearchOpen,
         child: CustomFloatingActionButton(
           onPressed: currIndex == 0 ? createNote : createFolder
         ),
@@ -230,8 +231,9 @@ class _NotesPageState extends State<HomePage> with TickerProviderStateMixin {
           ),
 
           if (isSearchOpen) SearchOverlay(
+            currIndex: currIndex,
             onClose: () {
-              searchAnimController.reverse(); 
+              searchAnimController.reverse();
             }
           )
         ]

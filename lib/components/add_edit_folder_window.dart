@@ -10,7 +10,9 @@ class AddEditFolderWindow extends StatelessWidget {
   final VoidCallback onAddPressed;
   final VoidCallback onCancelPressed;
 
-  const AddEditFolderWindow({
+  final FocusNode fcsNode = FocusNode();
+
+  AddEditFolderWindow({
     super.key,
     required this.actionTitle,
     required this.sumbitButtonName,
@@ -21,6 +23,8 @@ class AddEditFolderWindow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    fcsNode.requestFocus();
+
     return AlertDialog(
       backgroundColor: Theme.of(context).colorScheme.primary,
       content: SizedBox(
@@ -50,6 +54,7 @@ class AddEditFolderWindow extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 4, bottom: 6),
                     child: TextField(
+                      focusNode: fcsNode,
                       controller: folderNameController,
                       cursorColor: Theme.of(context).colorScheme.inversePrimary,
                       style: TextStyle(

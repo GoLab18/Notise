@@ -8,7 +8,9 @@ class AddNoteWindow extends StatelessWidget {
   final VoidCallback onAddPressed;
   final VoidCallback onCancelPressed;
 
-  const AddNoteWindow({
+  final FocusNode fcsNode = FocusNode();
+
+  AddNoteWindow({
     super.key,
     required this.titleController,
     required this.textController,
@@ -18,6 +20,8 @@ class AddNoteWindow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    fcsNode.requestFocus();
+
     final Size screenSize = MediaQuery.of(context).size;
 
     return Center(
@@ -51,6 +55,7 @@ class AddNoteWindow extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 8, bottom: 6),
                         child: TextField(
+                          focusNode: fcsNode,
                           controller: titleController,
                           cursorColor: Theme.of(context).colorScheme.inversePrimary,
                           style: TextStyle(
