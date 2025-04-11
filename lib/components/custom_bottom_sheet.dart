@@ -20,7 +20,7 @@ class CustomBottomSheet extends StatefulWidget {
     this.folder,
     required this.onBottomSheetClosed,
     this.allowNoteFromFolderDeletion = false
-  }) : assert(note != null || folder != null, 'Specifically one item must be provided');
+  }) : assert((note != null) ^ (folder != null), 'Specifically one item must be provided');
 
   @override
   State<CustomBottomSheet> createState() => _CustomBottomSheetState();
@@ -151,78 +151,107 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final NotesDatabase db = context.watch<NotesDatabase>();
-
     List<Folder> currentFolders = db.currentFolders;
 
-    return PopScope(
-      onPopInvokedWithResult: (didPop, result) => widget.onBottomSheetClosed(),
-      child: BottomSheet(
-        backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
-        onClosing: () {},
-        builder: (BuildContext context) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-      
-                // Pin
-                IconButton(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  icon: Transform.rotate(
-                    angle: pinAngle,
-                    child: const Icon(Icons.push_pin)
-                  ),
-                  onPressed: () {
-                    if (widget.note != null) pinAction(widget.note!.id);
-                    if (widget.folder != null) pinAction(widget.folder!.id);
-                  }
-                ),
-      
-                // Folder
-                if (widget.note != null) IconButton(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  icon: const Icon(Icons.folder),
-                  onPressed: () {
-                    addToFolder(currentFolders);
-                  }
-                ),
-      
-                // Edit
-                if (widget.folder != null) IconButton(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    editFolder();
-                  }
-                ),
+    double middleSpace = 64;
+    double sidePanelWidth = (MediaQuery.of(context).size.width / 2) - (middleSpace / 2);
 
+    return BottomSheet(
+      backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
+      onClosing: () {},
+      builder: (BuildContext context) {
+        Widget pinButton = IconButton(
+          color: Theme.of(context).colorScheme.tertiary,
+          icon: Transform.rotate(
+            angle: pinAngle,
+            child: const Icon(Icons.push_pin)
+          ),
+          onPressed: () {
+            if (widget.note != null) pinAction(widget.note!.id);
+            if (widget.folder != null) pinAction(widget.folder!.id);
+          }
+        );
+
+        Widget folderButton = IconButton(
+          color: Theme.of(context).colorScheme.tertiary,
+          icon: const Icon(Icons.folder),
+          onPressed: () {
+            addToFolder(currentFolders);
+          }
+        );
+
+        Widget deleteButton = IconButton(
+          color: Theme.of(context).colorScheme.tertiary,
+          icon: const Icon(Icons.delete),
+          onPressed: () {
+            deleteItem();
+          }
+        );
+
+        return Padding(
+          padding: EdgeInsets.all(widget.allowNoteFromFolderDeletion ? 8.0 : 0.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              if (widget.allowNoteFromFolderDeletion) ...[
+                pinButton,
+    
+                if (widget.note != null) folderButton,
+    
                 // Discard from the current folder
-                if (widget.note != null && widget.allowNoteFromFolderDeletion == true) IconButton(
+                if (widget.note != null && widget.allowNoteFromFolderDeletion) IconButton(
                   color: Theme.of(context).colorScheme.tertiary,
                   icon: const Icon(
                     Icons.folder_off
                   ),
                   onPressed: () {
                     context.read<NotesDatabase>().deleteNoteFromFolder(widget.note!.id);
-
+    
                     Navigator.pop(context);
                   }
                 ),
-      
-                // Delete
-                IconButton(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    deleteItem();
-                  }
+                
+                deleteButton
+              ],
+    
+              if (!widget.allowNoteFromFolderDeletion) ...[
+                SizedBox(
+                  width: sidePanelWidth,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      pinButton,
+    
+                      if (widget.note != null) folderButton,
+    
+                      // Edit
+                      if (widget.folder != null) IconButton(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          editFolder();
+                        }
+                      )
+                    ]
+                  )
+                ),
+    
+                SizedBox(width: middleSpace),
+    
+                SizedBox(
+                  width: sidePanelWidth,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      deleteButton
+                    ]
+                  )
                 )
               ]
-            )
-          );
-        }
-      )
+            ]
+          )
+        );
+      }
     );
   }
 }
