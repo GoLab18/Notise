@@ -31,6 +31,8 @@ class _FolderPageState extends State<FolderPage> {
   late TextEditingController titleController;
   late TextEditingController textController;
 
+  late final Stream<Folder?> folderStream;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +45,8 @@ class _FolderPageState extends State<FolderPage> {
 
     titleController = TextEditingController();
     textController = TextEditingController();
+
+    folderStream = context.read<NotesDatabase>().fetchFolderStream(widget.folder.id);
   }
 
   void handleFocusChange() {
@@ -107,111 +111,117 @@ class _FolderPageState extends State<FolderPage> {
 
   @override
   Widget build(BuildContext context) {
-    final NotesDatabase db = context.watch<NotesDatabase>();
-    Map<int, int> currentFoldersNotesAmounts = db.currentFoldersNotesAmounts;
+    return StreamBuilder<Folder?>(
+      stream: folderStream,
+      initialData: widget.folder,
+      builder: (context, snapshot) {
+        Folder? folder = snapshot.data;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: MainAppBar(
-        showBackButton: true,
-        isInEditState: isInEditState,
-        onEditStateFinished: onEditStateFinished,
-        popupMenuOptionsCallbacks: {
-          "Delete": () {
-            deleteFolder(widget.folder.id);
-          }
-        }
-      ),
-      body: Column(
-        children: [
-          // Note title
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              children: [
-                // Editable folder name
-                EditableText(
-                  keyboardType: TextInputType.multiline,
-                  controller: _folderNameController,
-                  focusNode: _folderNameFocusNode,
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                    overflow: TextOverflow.ellipsis
-                  ),
-                  cursorColor: Theme.of(context).colorScheme.inversePrimary,
-                  backgroundCursorColor: Theme.of(context).colorScheme.tertiary
-                ),
-                
-                Row(
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: MainAppBar(
+            showBackButton: true,
+            isInEditState: isInEditState,
+            onEditStateFinished: onEditStateFinished,
+            popupMenuOptionsCallbacks: {
+              "Delete": () {
+                deleteFolder(folder!.id);
+              }
+            }
+          ),
+          body: Column(
+            children: [
+              // Note title
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
                   children: [
-
-                    // Init date
-                    Text(
-                      DateUtil.getCurrentDate(widget.folder.initDate),
+                    // Editable folder name
+                    EditableText(
+                      keyboardType: TextInputType.multiline,
+                      controller: _folderNameController,
+                      focusNode: _folderNameFocusNode,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 14
-                      )
-                    ),
-
-                    // Notes
-                    Padding(
-                      padding: const EdgeInsets.only(left: 14, right: 6),
-                      child: Icon(
-                        Icons.note_outlined,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        size: 16,
-                      )
-                    ),
-        
-                    // Amount of notes inside
-                    Text(
-                      currentFoldersNotesAmounts[widget.folder.id].toString(),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 14
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.inversePrimary,
+                        overflow: TextOverflow.ellipsis
                       ),
-                      textAlign: TextAlign.center
+                      cursorColor: Theme.of(context).colorScheme.inversePrimary,
+                      backgroundCursorColor: Theme.of(context).colorScheme.tertiary
+                    ),
+                    
+                    Row(
+                      children: [
+        
+                        // Init date
+                        Text(
+                          DateUtil.getCurrentDate(folder!.initDate),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            fontSize: 14
+                          )
+                        ),
+        
+                        // Notes
+                        Padding(
+                          padding: const EdgeInsets.only(left: 14, right: 6),
+                          child: Icon(
+                            Icons.note_outlined,
+                            color: Theme.of(context).colorScheme.tertiary,
+                            size: 16,
+                          )
+                        ),
+            
+                        // Amount of notes inside
+                        Text(
+                          folder.notesCount.toString(),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            fontSize: 14
+                          ),
+                          textAlign: TextAlign.center
+                        )
+                      ]
                     )
                   ]
                 )
-              ]
-            )
+              ),
+        
+              Divider(
+                color: Theme.of(context).colorScheme.inversePrimary,
+                thickness: 2,
+                height: 0
+              ),
+        
+              // List for notes
+              Expanded(
+                child: NotesViewPage(
+                  onBottomSheetOpened: () {
+                    setState(() {
+                      _isBottomSheetOpen = true;
+                    });
+                  },
+                  onBottomSheetClosed: () {
+                    setState(() {
+                      _isBottomSheetOpen = false;
+                    });
+                  },
+                  viewSpecificFolderNotes: true,
+                  folderId: folder.id
+                )
+              )
+            ]
           ),
-
-          Divider(
-            color: Theme.of(context).colorScheme.inversePrimary,
-            thickness: 2,
-            height: 0
-          ),
-
-          // List for notes
-          Expanded(
-            child: NotesViewPage(
-              onBottomSheetOpened: () {
-                setState(() {
-                  _isBottomSheetOpen = true;
-                });
-              },
-              onBottomSheetClosed: () {
-                setState(() {
-                  _isBottomSheetOpen = false;
-                });
-              },
-              viewSpecificFolderNotes: true,
-              folderId: widget.folder.id
+          floatingActionButton: Visibility(
+            visible: !_isBottomSheetOpen,
+            child: CustomFloatingActionButton(
+              onPressed: createNote
             )
           )
-        ]
-      ),
-      floatingActionButton: Visibility(
-        visible: !_isBottomSheetOpen,
-        child: CustomFloatingActionButton(
-          onPressed: createNote
-        )
-      )
+        );
+      }
     );
   }
 }
