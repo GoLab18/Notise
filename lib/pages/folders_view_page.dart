@@ -10,13 +10,17 @@ import 'package:notise/util/date_util.dart';
 import 'package:provider/provider.dart';
 
 class FoldersViewPage extends StatefulWidget {
-  final VoidCallback onBottomSheetOpened;
-  final VoidCallback onBottomSheetClosed;
+  final bool isInSearchMode;
+  final VoidCallback? onBottomSheetOpened;
+  final VoidCallback? onBottomSheetClosed;
+  final VoidCallback? onScrollMaxExtentReached;
 
   const FoldersViewPage({
     super.key,
-    required this.onBottomSheetOpened,
-    required this.onBottomSheetClosed
+    this.isInSearchMode = false,
+    this.onBottomSheetOpened,
+    this.onBottomSheetClosed,
+    this.onScrollMaxExtentReached
   });
 
   @override
@@ -34,12 +38,19 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
   final int _onHoldBottomSheetOpenTime = 1;
   late Timer? _longPressTimer;
 
+  ScrollController? scrlController;
 
   @override
   void initState() {
     super.initState();
 
-    context.read<NotesDatabase>().fetchFolderNotesAmounts();
+    if (widget.isInSearchMode) {
+      scrlController = ScrollController()..addListener(() {
+        if (scrlController!.position.pixels >= scrlController!.position.maxScrollExtent * 7/10) {
+          widget.onScrollMaxExtentReached!();
+        }
+      });
+    }
   }
 
   void holdInteraction(int index, Folder folder) {
@@ -53,16 +64,19 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
         seconds: _onHoldBottomSheetOpenTime
       ),
       () {
-        widget.onBottomSheetOpened();
-        final bottomSheetController = showBottomSheet(
-          context: context,
-          builder: (BuildContext context) => CustomBottomSheet(
-            folder: folder,
-            onBottomSheetClosed: widget.onBottomSheetClosed
-          )
-        );
+        if (widget.onBottomSheetOpened != null) widget.onBottomSheetOpened!();
 
-        bottomSheetController.closed.whenComplete(widget.onBottomSheetClosed);
+        if (!widget.isInSearchMode) {
+          final bottomSheetController = showBottomSheet(
+            context: context,
+            builder: (BuildContext context) => CustomBottomSheet(
+              folder: folder,
+              onBottomSheetClosed: widget.onBottomSheetClosed!
+            )
+          );
+
+          bottomSheetController.closed.whenComplete(widget.onBottomSheetClosed!);
+        }
       }
     );
   }
@@ -103,128 +117,159 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
   @override
   Widget build(BuildContext context) {
     final NotesDatabase db = context.watch<NotesDatabase>();
-
-    List<Folder> currentFolders = db.currentFolders;
-    Map<int, int> currentFoldersNotesAmounts = db.currentFoldersNotesAmounts;
+    List<Folder> currentFolders = (widget.isInSearchMode) ? db.currFoldersSearch : db.currentFolders;
     
-    return ListView.builder(
-      itemCount: currentFolders.length + 1,
+    return CustomScrollView(
+      controller: scrlController,
       shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      itemBuilder: (BuildContext context, int index) {
-        if (index == currentFolders.length) return Container(height: 60);
-        
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: GestureDetector(
-            onTap: () {
-              onNoteClick(context, index, currentFolders[index]);
-            },
-            onLongPress: () {
-              holdInteraction(index, currentFolders[index]);
-            },
-            onLongPressUp: () {
-              holdEnded(index);
-            },
-            child: AnimatedScale(
-              scale: _scales[index] ?? _scaleDefault,
-              duration: Duration(milliseconds: _durationsMs[index] ?? _durationDefault),
-              child: Container(
-                height: 60,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.folder,
-                      color: Theme.of(context).colorScheme.inversePrimary
-                    ),
-
-                    // Folder name
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          currentFolders[index].name,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.inversePrimary,
-                            fontSize: 20
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 6),
+          sliver: SliverList.builder(
+            itemCount: currentFolders.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: GestureDetector(
+                  onTap: () {
+                    onNoteClick(context, index, currentFolders[index]);
+                  },
+                  onLongPress: () {
+                    holdInteraction(index, currentFolders[index]);
+                  },
+                  onLongPressUp: () {
+                    holdEnded(index);
+                  },
+                  child: AnimatedScale(
+                    scale: _scales[index] ?? _scaleDefault,
+                    duration: Duration(milliseconds: _durationsMs[index] ?? _durationDefault),
+                    child: Container(
+                      height: 60,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.folder,
+                            color: Theme.of(context).colorScheme.inversePrimary
                           ),
-                          textAlign: TextAlign.start,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis
-                        )
-                      )
-                    ),
-
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            
-                          // Is it pinned
-                          Visibility(
-                            visible: currentFolders[index].isPinned,
-                            child: Transform.rotate(
-                              angle: pi / 4,
-                              child: Icon(
-                                color: Theme.of(context).colorScheme.inversePrimary,
-                                Icons.push_pin_outlined,
-                                size: 14
+          
+                          // Folder name
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                currentFolders[index].name,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.inversePrimary,
+                                  fontSize: 20
+                                ),
+                                textAlign: TextAlign.start,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis
                               )
                             )
                           ),
-                          
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8, right: 6),
-                                  child: Icon(
-                                    Icons.note_outlined,
-                                    color: Theme.of(context).colorScheme.inversePrimary,
-                                    size: 14
+          
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  
+                                // Is it pinned
+                                Visibility(
+                                  visible: currentFolders[index].isPinned,
+                                  child: Transform.rotate(
+                                    angle: pi / 4,
+                                    child: Icon(
+                                      color: Theme.of(context).colorScheme.inversePrimary,
+                                      Icons.push_pin_outlined,
+                                      size: 14
+                                    )
                                   )
                                 ),
-                    
-                                // Amount of notes inside
-                                Text(
-                                  currentFoldersNotesAmounts[currentFolders[index].id].toString(),
+                                
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 8, right: 6),
+                                        child: Icon(
+                                          Icons.note_outlined,
+                                          color: Theme.of(context).colorScheme.inversePrimary,
+                                          size: 14
+                                        )
+                                      ),
+                          
+                                      // Amount of notes inside
+                                      Text(
+                                        currentFolders[index].notesCount.toString(),
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.inversePrimary,
+                                          fontSize: 12
+                                        ),
+                                        textAlign: TextAlign.center
+                                      )
+                                    ]
+                                  )
+                                ]
+                              ),
+                          
+                              // Folder init date
+                              Expanded(
+                                child: Text(
+                                  DateUtil.getCurrentDate(currentFolders[index].initDate),
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.inversePrimary,
+                                    color: Theme.of(context).colorScheme.tertiary,
                                     fontSize: 12
-                                  ),
-                                  textAlign: TextAlign.center
+                                  )
                                 )
-                              ]
-                            )
-                          ]
-                        ),
-                    
-                        // Folder init date
-                        Expanded(
-                          child: Text(
-                            DateUtil.getCurrentDate(currentFolders[index].initDate),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontSize: 12
-                            )
+                              )
+                            ]
                           )
-                        )
-                      ]
+                        ]
+                      )
                     )
-                  ]
+                  )
                 )
-              )
+              );
+            }
+          )
+        ),
+
+        if (currentFolders.isNotEmpty) SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: Divider(
+              color: Theme.of(context).colorScheme.inversePrimary,
+              thickness: 2,
+              height: 2
             )
           )
-        );
-      }
+        ),
+
+        if (currentFolders.isNotEmpty) SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 72.0),
+            child: Divider(
+              color: Theme.of(context).colorScheme.inversePrimary,
+              thickness: 2,
+              height: 2
+            )
+          )
+        ),
+
+        SliverToBoxAdapter(child: const SizedBox(height: 8.0)),
+
+        if (!widget.isInSearchMode) SliverToBoxAdapter(
+          child: SizedBox(height: 60)
+        )
+      ]
     );
   }
 }

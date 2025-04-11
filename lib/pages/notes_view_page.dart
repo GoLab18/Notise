@@ -10,9 +10,10 @@ import 'package:notise/util/date_util.dart';
 import 'package:provider/provider.dart';
 
 class NotesViewPage extends StatefulWidget {
-  // Bottom sheet related fields
-  final VoidCallback onBottomSheetOpened;
-  final VoidCallback onBottomSheetClosed;
+  final bool isInSearchMode;
+  final VoidCallback? onBottomSheetOpened;
+  final VoidCallback? onBottomSheetClosed;
+  final VoidCallback? onScrollMaxExtentReached;
 
   // Folder notes view related fields
   final bool viewSpecificFolderNotes;
@@ -20,8 +21,10 @@ class NotesViewPage extends StatefulWidget {
 
   const NotesViewPage({
     super.key,
-    required this.onBottomSheetOpened,
-    required this.onBottomSheetClosed,
+    this.isInSearchMode = false,
+    this.onBottomSheetOpened,
+    this.onBottomSheetClosed,
+    this.onScrollMaxExtentReached,
     this.viewSpecificFolderNotes = false,
     this.folderId
   }) : assert(
@@ -43,6 +46,20 @@ class _NotesViewPageState extends State<NotesViewPage> {
   final int _onHoldBottomSheetOpenTime = 1;
   late Timer? _longPressTimer;
 
+  ScrollController? scrlController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.isInSearchMode) {
+      scrlController = ScrollController()..addListener(() {
+        if (scrlController!.position.pixels >= scrlController!.position.maxScrollExtent * 7/10) {
+          widget.onScrollMaxExtentReached!();
+        }
+      });
+    }
+  }
 
   void holdInteraction(int index, Note note) {
     setState(() {
@@ -55,17 +72,20 @@ class _NotesViewPageState extends State<NotesViewPage> {
         seconds: _onHoldBottomSheetOpenTime
       ),
       () {
-        widget.onBottomSheetOpened();
-        final bottomSheetController = showBottomSheet(
-          context: context,
-          builder: (BuildContext context) => CustomBottomSheet(
-            note: note,
-            onBottomSheetClosed: widget.onBottomSheetClosed,
-            allowNoteFromFolderDeletion: widget.viewSpecificFolderNotes
-          )
-        );
+        if (widget.onBottomSheetOpened != null) widget.onBottomSheetOpened!();
 
-        bottomSheetController.closed.whenComplete(widget.onBottomSheetClosed);
+        if (!widget.isInSearchMode) {
+          final bottomSheetController = showBottomSheet(
+            context: context,
+            builder: (BuildContext context) => CustomBottomSheet(
+              note: note,
+              onBottomSheetClosed: widget.onBottomSheetClosed!,
+              allowNoteFromFolderDeletion: widget.viewSpecificFolderNotes
+            )
+          );
+
+          bottomSheetController.closed.whenComplete(widget.onBottomSheetClosed!);
+        }
       }
     );
   }
@@ -95,133 +115,167 @@ class _NotesViewPageState extends State<NotesViewPage> {
       Navigator.push<void>(
         context,
         MaterialPageRoute<void>(
-          builder: (context) => NoteDetailsPage(
-            note: note
-          )
+          builder: (context) => NoteDetailsPage(note: note)
         )
       );
     });
+  }
+
+  List<Note> provideCurrNotes(NotesDatabase db) {
+    if (widget.isInSearchMode) return db.currNotesSearch;
+
+    List<Note> currNotes;
+    if (widget.viewSpecificFolderNotes) {
+      currNotes = db.currentNotes.where((Note note) => note.folderId == widget.folderId).toList();
+    } else {
+      currNotes = db.currentNotes;
+    }
+
+    return currNotes;
   }
 
   @override
   Widget build(BuildContext context) {
     final NotesDatabase db = context.watch<NotesDatabase>();
 
-    List<Note> currentNotes;
-
-    if (widget.viewSpecificFolderNotes) {
-      currentNotes = db.currentNotes.where(
-        (Note note) => note.folderId == widget.folderId
-      ).toList();
-    } else {
-      currentNotes = db.currentNotes;
-    }
+    List<Note> currNotes = provideCurrNotes(db);
 
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: GridView.builder(
-        itemCount: currentNotes.length,
+      child: CustomScrollView(
+        controller: scrlController,
         shrinkWrap: true,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          mainAxisExtent: 140
-        ),
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () {
-              onNoteClick(context, index, currentNotes[index]);
-            },
-            onLongPress: () {
-              holdInteraction(index, currentNotes[index]);
-            },
-            onLongPressUp: () {
-              holdEnded(index);
-            },
-            child: AnimatedScale(
-              scale: _scales[index] ?? _scaleDefault,
-              duration: Duration(milliseconds: _durationsMs[index] ?? _durationDefault),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(10)
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Note title
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
-                      child: Text(
-                        currentNotes[index].title,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.inversePrimary,
-                          fontWeight: FontWeight.bold
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1
-                      )
+        slivers: [
+          SliverGrid.builder(
+            itemCount: currNotes.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              mainAxisExtent: 140
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              return GestureDetector(
+                onTap: () {
+                  onNoteClick(context, index, currNotes[index]);
+                },
+                onLongPress: () {
+                  holdInteraction(index, currNotes[index]);
+                },
+                onLongPressUp: () {
+                  holdEnded(index);
+                },
+                child: AnimatedScale(
+                  scale: _scales[index] ?? _scaleDefault,
+                  duration: Duration(milliseconds: _durationsMs[index] ?? _durationDefault),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.circular(10)
                     ),
-              
-                    Divider(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      thickness: 2,
-                      height: 0
-                    ),
-                    
-                    // Note text
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Text(
-                          currentNotes[index].text,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.inversePrimary
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 4,
-                          softWrap: true
-                        )
-                      )
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 8, bottom: 6),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          
-                          // Date
-                          Text(
-                            DateUtil.getCurrentDate(currentNotes[index].initDate),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Note title
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
+                          child: Text(
+                            currNotes[index].title,
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontSize: 12
-                            )
-                          ),
-                      
-                          // Is it pinned
-                          Visibility(
-                            visible: currentNotes[index].isPinned,
-                            child: Transform.rotate(
-                              angle: pi / 4,
-                              child: Icon(
-                                color: Theme.of(context).colorScheme.inversePrimary,
-                                Icons.push_pin_outlined,
-                                size: 14
-                              )
+                              color: Theme.of(context).colorScheme.inversePrimary,
+                              fontWeight: FontWeight.bold
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1
+                          )
+                        ),
+
+                        Divider(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          thickness: 2,
+                          height: 0
+                        ),
+                        
+                        // Note text
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Text(
+                              currNotes[index].text,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.inversePrimary
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 4,
+                              softWrap: true
                             )
                           )
-                        ]
-                      )
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 8, bottom: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              
+                              // Date
+                              Text(
+                                DateUtil.getCurrentDate(currNotes[index].initDate),
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  fontSize: 12
+                                )
+                              ),
+                          
+                              // Is it pinned
+                              Visibility(
+                                visible: currNotes[index].isPinned,
+                                child: Transform.rotate(
+                                  angle: pi / 4,
+                                  child: Icon(
+                                    color: Theme.of(context).colorScheme.inversePrimary,
+                                    Icons.push_pin_outlined,
+                                    size: 14
+                                  )
+                                )
+                              )
+                            ]
+                          )
+                        )
+                      ]
                     )
-                  ]
+                  )
                 )
+              );
+            }
+          ),
+
+          if (currNotes.isNotEmpty) SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Divider(
+                color: Theme.of(context).colorScheme.inversePrimary,
+                thickness: 2,
+                height: 2
               )
             )
-          );
-        }
+          ),
+
+          if (currNotes.isNotEmpty) SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 64.0),
+              child: Divider(
+                color: Theme.of(context).colorScheme.inversePrimary,
+                thickness: 2,
+                height: 2
+              )
+            )
+          ),
+
+          if (!widget.isInSearchMode) SliverToBoxAdapter(
+            child: SizedBox(height: 60)
+          )
+        ]
       )
     );
   }
