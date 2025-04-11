@@ -54,13 +54,15 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
       ),
       () {
         widget.onBottomSheetOpened();
-        showBottomSheet(
+        final bottomSheetController = showBottomSheet(
           context: context,
           builder: (BuildContext context) => CustomBottomSheet(
             folder: folder,
             onBottomSheetClosed: widget.onBottomSheetClosed
           )
         );
+
+        bottomSheetController.closed.whenComplete(widget.onBottomSheetClosed);
       }
     );
   }
@@ -106,10 +108,12 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
     Map<int, int> currentFoldersNotesAmounts = db.currentFoldersNotesAmounts;
     
     return ListView.builder(
-      itemCount: currentFolders.length,
+      itemCount: currentFolders.length + 1,
       shrinkWrap: true,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       itemBuilder: (BuildContext context, int index) {
+        if (index == currentFolders.length) return Container(height: 60);
+        
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: GestureDetector(

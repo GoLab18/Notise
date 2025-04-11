@@ -56,7 +56,7 @@ class _NotesViewPageState extends State<NotesViewPage> {
       ),
       () {
         widget.onBottomSheetOpened();
-        showBottomSheet(
+        final bottomSheetController = showBottomSheet(
           context: context,
           builder: (BuildContext context) => CustomBottomSheet(
             note: note,
@@ -64,6 +64,8 @@ class _NotesViewPageState extends State<NotesViewPage> {
             allowNoteFromFolderDeletion: widget.viewSpecificFolderNotes
           )
         );
+
+        bottomSheetController.closed.whenComplete(widget.onBottomSheetClosed);
       }
     );
   }
