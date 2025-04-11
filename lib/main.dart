@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notise/data/notes_database.dart';
-import 'package:notise/pages/notes_page.dart';
+import 'package:notise/pages/home_page.dart';
 import 'package:notise/themes/theme_provider.dart';
 import 'package:notise/util/orientation.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const NotesPage(),
+      home: const HomePage(),
       theme: Provider.of<ThemeProvider>(context).themeData
     );
   }
