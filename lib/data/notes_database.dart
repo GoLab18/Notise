@@ -13,6 +13,7 @@ class NotesDatabase extends ChangeNotifier {
   List<Note> currNotesSearch = [];
   List<Folder> currFoldersSearch = [];
 
+  String lastSearchQuery = "";
   int searchOffset = 0;
   bool isEverythingFound = false;
   
@@ -219,6 +220,7 @@ class NotesDatabase extends ChangeNotifier {
   /// Full-text searches notes by [query] with prefix searching.
   /// When [isInitial] equals false, method handles pagination starting from it's value.
   Future<void> searchNotes(String query, [bool isInitial = true, int limit = 18]) async {
+    lastSearchQuery = query;
     if (isInitial) {
       isEverythingFound = false;
       searchOffset = 0;
@@ -232,15 +234,33 @@ class NotesDatabase extends ChangeNotifier {
       return;
     }
 
-    List<Note> noteResults = await isar.notes
-      .filter()
-      .titleStartsWith(query, caseSensitive: false)
-      .sortByTitle()
-      .thenByInitDate()
-      .thenByIsPinnedDesc()
-      .offset(searchOffset)
-      .limit(limit)
-      .findAll();
+    late List<Note> noteResults;
+
+    if (!query.contains(" ")) {
+      // Leveraging word-based prefix matching for better performance
+      noteResults = await isar.notes
+        .filter()
+        .titleWordsElementStartsWith(query, caseSensitive: false)
+        .or()
+        .textWordsElementStartsWith(query, caseSensitive: false)
+        .sortByIsPinnedDesc()
+        .thenByInitDate()
+        .offset(searchOffset)
+        .limit(limit)
+        .findAll();
+    } else {
+      // Linear contains search as a fallback
+      noteResults = await isar.notes
+        .filter()
+        .titleContains(query, caseSensitive: false)
+        .or()
+        .textContains(query, caseSensitive: false)
+        .sortByIsPinnedDesc()
+        .thenByInitDate()
+        .offset(searchOffset)
+        .limit(limit)
+        .findAll();
+    }
 
     if (noteResults.length < limit) isEverythingFound = true;
 
@@ -254,6 +274,7 @@ class NotesDatabase extends ChangeNotifier {
   /// Full-text searches folders by [query] with prefix searching.
   /// When [isInitial] equals false, method handles pagination starting from it's value.
   Future<void> searchFolders(String query, [bool isInitial = true, int limit = 18]) async {
+    lastSearchQuery = query;
     if (isInitial) searchOffset = 0;
 
     if (query.isEmpty) {
@@ -262,15 +283,29 @@ class NotesDatabase extends ChangeNotifier {
       return;
     }
 
-    List<Folder> folderResults = await isar.folders
-      .filter()
-      .nameStartsWith(query, caseSensitive: false)
-      .sortByName()
-      .thenByInitDate()
-      .thenByIsPinnedDesc()
-      .offset(searchOffset)
-      .limit(limit)
-      .findAll();
+    late List<Folder> folderResults;
+
+    if (!query.contains(" ")) {
+      // Leveraging word-based prefix matching for better performance
+      folderResults = await isar.folders
+        .filter()
+        .nameWordsElementStartsWith(query, caseSensitive: false)
+        .sortByIsPinnedDesc()
+        .thenByInitDate()
+        .offset(searchOffset)
+        .limit(limit)
+        .findAll();
+    } else {
+      // Linear contains search as a fallback
+      folderResults = await isar.folders
+        .filter()
+        .nameContains(query, caseSensitive: false)
+        .sortByIsPinnedDesc()
+        .thenByInitDate()
+        .offset(searchOffset)
+        .limit(limit)
+        .findAll();
+    }
 
     (isInitial) ? currFoldersSearch = folderResults : currFoldersSearch.addAll(folderResults);
 
@@ -280,6 +315,7 @@ class NotesDatabase extends ChangeNotifier {
   }
 
   Future<void> clearSearchResults(bool isNote) async {
+    lastSearchQuery = "";
     (isNote) ? currNotesSearch.clear() : currFoldersSearch.clear();
     searchOffset = 0;
   }
