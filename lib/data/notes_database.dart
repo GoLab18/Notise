@@ -180,6 +180,8 @@ class NotesDatabase extends ChangeNotifier {
     
     // Add note to an existing folder if folderId specified
     if (folderId != null) folder = await isar.folders.get(folderId);
+    
+    if (folder != null) folder.notesCount++;
 
     // Add a new folder if folderId not specified
     folder ??= Folder()
@@ -187,12 +189,10 @@ class NotesDatabase extends ChangeNotifier {
       ..initDate = DateTime.now()
       ..notesCount = 1;
     
-    existingNote.folderId = folder.id;
 
-    await isar.writeTxn(() async {
-      await isar.notes.put(existingNote);
-      await isar.folders.put(folder!);
-    });
+
+    existingNote.folderId = await isar.writeTxn(() async => await isar.folders.put(folder!));
+    await isar.writeTxn(() async => await isar.notes.put(existingNote));
 
     await fetchNotes();
     await fetchFolders();

@@ -119,7 +119,7 @@ class _NotesPageState extends State<HomePage> with TickerProviderStateMixin {
       context: context,
       builder: (BuildContext context) => AddEditFolderWindow(
         actionTitle: "New folder",
-        sumbitButtonName: "Create",
+        submitButtonName: "Create",
         folderNameController: folderNameController,
         onAddPressed: () {
           context.read<NotesDatabase>().addFolder(folderNameController.text);

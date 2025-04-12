@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notise/components/button_template.dart';
 
-class AddNoteWindow extends StatelessWidget {
+class AddNoteWindow extends StatefulWidget {
   final TextEditingController titleController;
   final TextEditingController textController;
 
@@ -17,6 +17,31 @@ class AddNoteWindow extends StatelessWidget {
     required this.onAddPressed,
     required this.onCancelPressed
   });
+
+  @override
+  State<AddNoteWindow> createState() => _AddNoteWindowState();
+}
+
+
+class _AddNoteWindowState extends State<AddNoteWindow> {
+  final FocusNode fcsNode = FocusNode();
+  bool isInputValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.titleController.addListener(validateTitle);
+  }
+
+  @override
+  void dispose() {
+    widget.titleController.removeListener(validateTitle);
+    super.dispose();
+  }
+
+  void validateTitle() {
+    setState(() { isInputValid = widget.titleController.text.trim().isNotEmpty; });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +81,7 @@ class AddNoteWindow extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 8, bottom: 6),
                         child: TextField(
                           focusNode: fcsNode,
-                          controller: titleController,
+                          controller: widget.titleController,
                           cursorColor: Theme.of(context).colorScheme.inversePrimary,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.inversePrimary
@@ -89,7 +114,7 @@ class AddNoteWindow extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
                           child: TextField(
-                            controller: textController,
+                            controller: widget.textController,
                             maxLines: null,
                             expands: true,
                             keyboardType: TextInputType.multiline,
@@ -125,8 +150,15 @@ class AddNoteWindow extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ButtonTemplate(text: "Cancel", onPressed: onCancelPressed),
-                    ButtonTemplate(text: "Create", onPressed: onAddPressed)
+                    ButtonTemplate(
+                      text: "Cancel", 
+                      onPressed: widget.onCancelPressed
+                    ),
+                    ButtonTemplate(
+                      text: "Create", 
+                      onPressed: widget.onAddPressed,
+                      isEnabled: isInputValid
+                    )
                   ]
                 )
               ]

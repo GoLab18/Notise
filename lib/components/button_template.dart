@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 class ButtonTemplate extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
-
+  final bool isEnabled;
 
   const ButtonTemplate({
     super.key,
     required this.text,
-    required this.onPressed
+    required this.onPressed,
+    this.isEnabled = true
   });
 
   @override
@@ -48,7 +49,7 @@ class _ButtonTemplateState extends State<ButtonTemplate> {
   Widget build(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: onButtonPressed,
+        onTap: widget.isEnabled ? onButtonPressed : null,
         child: AnimatedScale(
           scale: _currentScale,
           duration: Duration(milliseconds: _durationMs),
@@ -57,7 +58,7 @@ class _ButtonTemplateState extends State<ButtonTemplate> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.secondary.withOpacity(widget.isEnabled ? 1 : 0.5),
                 borderRadius: BorderRadius.circular(8)
               ),
               child: Padding(
@@ -66,7 +67,7 @@ class _ButtonTemplateState extends State<ButtonTemplate> {
                   widget.text,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.inversePrimary
+                    color: Theme.of(context).colorScheme.inversePrimary.withOpacity(widget.isEnabled ? 1 : 0.5)
                   )
                 )
               )

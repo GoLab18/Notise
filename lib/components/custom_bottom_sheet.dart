@@ -87,8 +87,8 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
           }
         )
         : AddEditFolderWindow(
-          actionTitle: "New folder",
-          sumbitButtonName: "Create",
+          actionTitle: "Add first folder",
+          submitButtonName: "Create",
           folderNameController: folderNameController,
           onAddPressed: () {
             dialogContext.read<NotesDatabase>().addNoteToFolder(
@@ -122,7 +122,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
       context: context,
       builder: (BuildContext dialogContext) => AddEditFolderWindow(
         actionTitle: "Edit folder",
-        sumbitButtonName: "Ok",
+        submitButtonName: "Ok",
         folderNameController: folderNameController,
         onAddPressed: () {
           dialogContext.read<NotesDatabase>().updateFolder(
@@ -138,7 +138,6 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
         },
         onCancelPressed: () {
           folderNameController.clear();
-
 
           widget.onBottomSheetClosed();
           Navigator.pop(dialogContext);

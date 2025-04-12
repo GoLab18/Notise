@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:notise/components/button_template.dart';
 
-class AddEditFolderWindow extends StatelessWidget {
+class AddEditFolderWindow extends StatefulWidget {
   final String actionTitle;
-  final String sumbitButtonName;
+  final String submitButtonName;
   
   final TextEditingController folderNameController;
 
@@ -15,14 +15,42 @@ class AddEditFolderWindow extends StatelessWidget {
   AddEditFolderWindow({
     super.key,
     required this.actionTitle,
-    required this.sumbitButtonName,
+    required this.submitButtonName,
     required this.folderNameController,
     required this.onAddPressed,
     required this.onCancelPressed
   });
 
   @override
+  State<AddEditFolderWindow> createState() => _AddEditFolderWindowState();
+}
+
+
+class _AddEditFolderWindowState extends State<AddEditFolderWindow> {
+  final FocusNode fcsNode = FocusNode();
+  bool isInputValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.folderNameController.addListener(_validateInput);
+  }
+
+  @override
+  void dispose() {
+    widget.folderNameController.removeListener(_validateInput);
+    super.dispose();
+  }
+
+  void _validateInput() {
+    setState(() {
+      isInputValid = widget.folderNameController.text.trim().isNotEmpty;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    widget.folderNameController.text = widget.folderNameController.text;
     fcsNode.requestFocus();
 
     return AlertDialog(
@@ -42,7 +70,7 @@ class AddEditFolderWindow extends StatelessWidget {
                   
                   // Action title
                   Text(
-                    actionTitle,
+                      widget.actionTitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.inversePrimary,
@@ -55,7 +83,7 @@ class AddEditFolderWindow extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 4, bottom: 6),
                     child: TextField(
                       focusNode: fcsNode,
-                      controller: folderNameController,
+                      controller: widget.folderNameController,
                       cursorColor: Theme.of(context).colorScheme.inversePrimary,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.inversePrimary
@@ -92,11 +120,12 @@ class AddEditFolderWindow extends StatelessWidget {
               children: [
                 ButtonTemplate(
                   text: "Cancel",
-                  onPressed: onCancelPressed
+                  onPressed: widget.onCancelPressed
                 ),
                 ButtonTemplate(
-                  text: sumbitButtonName,
-                  onPressed: onAddPressed
+                  text: widget.submitButtonName,
+                  onPressed: widget.onAddPressed,
+                  isEnabled: isInputValid
                 )
               ]
             )
