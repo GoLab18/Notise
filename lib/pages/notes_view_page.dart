@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:notise/components/custom_bottom_sheet.dart';
+import 'package:notise/components/highlighted_text.dart';
 import 'package:notise/data/note.dart';
 import 'package:notise/data/notes_database.dart';
 import 'package:notise/pages/note_details_page.dart';
@@ -179,8 +180,9 @@ class _NotesViewPageState extends State<NotesViewPage> {
                         // Note title
                         Padding(
                           padding: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
-                          child: Text(
-                            currNotes[index].title,
+                          child: HighlightedText(
+                            text: currNotes[index].title,
+                            query: widget.isInSearchMode ? context.read<NotesDatabase>().lastSearchQuery : '',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.inversePrimary,
                               fontWeight: FontWeight.bold
@@ -200,8 +202,9 @@ class _NotesViewPageState extends State<NotesViewPage> {
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(4),
-                            child: Text(
-                              currNotes[index].text,
+                            child: HighlightedText(
+                              text: currNotes[index].text,
+                              query: widget.isInSearchMode ? context.read<NotesDatabase>().lastSearchQuery : "",
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.inversePrimary
                               ),

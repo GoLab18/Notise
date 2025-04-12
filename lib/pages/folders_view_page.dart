@@ -9,6 +9,8 @@ import 'package:notise/pages/folder_page.dart';
 import 'package:notise/util/date_util.dart';
 import 'package:provider/provider.dart';
 
+import '../components/highlighted_text.dart';
+
 class FoldersViewPage extends StatefulWidget {
   final bool isInSearchMode;
   final VoidCallback? onBottomSheetOpened;
@@ -161,15 +163,16 @@ class _FoldersViewPageState extends State<FoldersViewPage> {
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                currentFolders[index].name,
+                              child: HighlightedText(
+                                text: currentFolders[index].name,
+                                query: widget.isInSearchMode ? context.read<NotesDatabase>().lastSearchQuery : "",
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.inversePrimary,
                                   fontSize: 20
                                 ),
                                 textAlign: TextAlign.start,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1
                               )
                             )
                           ),
